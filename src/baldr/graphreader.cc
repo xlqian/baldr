@@ -101,6 +101,8 @@ GraphId GraphReader::GetOpposingEdgeId(const GraphId& edgeid) {
 }
 GraphId GraphReader::GetOpposingEdgeId(const GraphId& edgeid, const GraphTile*& tile) {
   tile = GetGraphTile(edgeid);
+  if (tile == nullptr)
+    return {};
   const auto* directededge = tile->directededge(edgeid);
   GraphId id = directededge->endnode();
   if (directededge->leaves_tile()) {
