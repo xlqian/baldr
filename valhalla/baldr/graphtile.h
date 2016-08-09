@@ -117,6 +117,14 @@ class GraphTile {
   const DirectedEdge* directededge(const size_t idx) const;
 
   /**
+   * Convenience method to get opposing edge Id given a directed edge.
+   * The end node of the directed edge must be in this tile.
+   * @param  edge  Directed edge.
+   * @return Returns the GraphId of hte opposing directed edge.
+   */
+  GraphId GetOpposingEdgeId(const DirectedEdge* edge) const;
+
+  /**
    * Get a pointer to edge info.
    * @return  Returns edge info.
    */
