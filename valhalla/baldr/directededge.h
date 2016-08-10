@@ -123,6 +123,20 @@ class DirectedEdge {
   void set_drive_on_right(const bool rsd);
 
   /**
+   * Flag indicating the edge is a dead end (no other driveable
+   * roads at the end node of this edge).
+   * @return  Returns true if this edge is a dead end.
+   */
+  bool deadend() const;
+
+  /**
+   * Set the flag indicating the edge is a dead end (no other driveable
+   * roads at the end node of this edge).
+   * @param d  True if this edge is a dead end.
+   */
+  void set_deadend(const bool d);
+
+  /**
    * Does this edge have a toll or is it part of a toll road?
    * @return  Returns true if this edge is part of a toll road, false if not.
    */
@@ -741,7 +755,7 @@ class DirectedEdge {
   uint64_t speed_type_     : 2; // Speed type (tagged vs. categorized)
   uint64_t opp_index_      : 7; // Opposing directed edge index
   uint64_t drive_on_right_ : 1; // Driving side. Right if true (false=left)
-  uint64_t spare2_         : 1;
+  uint64_t deadend_        : 1; // A dead-end (no other driveable roads)
   uint64_t spare3_         : 1;
   uint64_t toll_           : 1; // Edge is part of a toll road.
   uint64_t seasonal_       : 1; // Seasonal access (ex. no access in winter)

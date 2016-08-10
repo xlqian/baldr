@@ -163,6 +163,18 @@ void DirectedEdge::set_drive_on_right(const bool rsd) {
   drive_on_right_ = rsd;
 }
 
+// Flag indicating the edge is a dead end (no other driveable
+// roads at the end node of this edge).
+bool DirectedEdge::deadend() const {
+  return deadend_;
+}
+
+// Set the flag indicating the edge is a dead end (no other driveable
+// roads at the end node of this edge).
+void DirectedEdge::set_deadend(const bool d) {
+  deadend_ = d;
+}
+
 // Does this edge have a toll or is it part of a toll road?
 bool DirectedEdge::toll() const {
   return toll_;
