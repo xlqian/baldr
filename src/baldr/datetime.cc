@@ -594,16 +594,12 @@ std::string get_duration(const std::string& date_time, const uint32_t seconds,
     formatted_date_time = formatted_date_time.substr(0,found);
 
   std::stringstream ss;
-  if (dt.is_dst())
-    ss << tz->dst_offset() + tz->base_utc_offset();
-  else ss << tz->base_utc_offset();
-
+  if (dt.is_dst()) {
+    ss << tz->dst_zone_abbrev();
+  } else {
+    ss << tz->std_zone_abbrev();
+  }
   formatted_date_time += ss.str();
-
-  found = formatted_date_time.find_last_of(":"); // remove seconds.
-  if (found != std::string::npos)
-    formatted_date_time = formatted_date_time.substr(0,found);
-
   return formatted_date_time;
 }
 

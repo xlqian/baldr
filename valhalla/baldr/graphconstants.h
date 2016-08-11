@@ -171,10 +171,10 @@ enum class IntersectionType : uint8_t {
                       // and node is a motorway_junction.
 };
 const std::unordered_map<uint8_t, std::string> IntersectionTypeStrings = {
-  {static_cast<uint8_t>(IntersectionType::kRegular), "road"},
-  {static_cast<uint8_t>(IntersectionType::kFalse), "ramp"},
-  {static_cast<uint8_t>(IntersectionType::kDeadEnd), "turn_channel"},
-  {static_cast<uint8_t>(IntersectionType::kFork), "track"},
+  {static_cast<uint8_t>(IntersectionType::kRegular), "regular"},
+  {static_cast<uint8_t>(IntersectionType::kFalse), "false"},
+  {static_cast<uint8_t>(IntersectionType::kDeadEnd), "dead-end"},
+  {static_cast<uint8_t>(IntersectionType::kFork), "fork"},
 };
 inline std::string to_string(IntersectionType x) {
   auto i = IntersectionTypeStrings.find(static_cast<uint8_t>(x));
