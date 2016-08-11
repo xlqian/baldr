@@ -303,6 +303,15 @@ const DirectedEdge* GraphTile::directededge(const size_t idx) const {
                            std::to_string(header_->directededgecount()));
 }
 
+// Convenience method to get opposing edge Id given a directed edge.
+// The end node of the directed edge must be in this tile.
+GraphId GraphTile::GetOpposingEdgeId(const DirectedEdge* edge) const {
+  GraphId endnode = edge->endnode();
+  return { endnode.tileid(), endnode.level(),
+           node(endnode.id())->edge_index() + edge->opp_index() };
+}
+
+// Get a pointer to edge info.
 std::unique_ptr<const EdgeInfo> GraphTile::edgeinfo(const size_t offset) const {
   return std::unique_ptr<EdgeInfo>(new EdgeInfo(edgeinfo_ + offset, textlist_, textlist_size_));
 }
