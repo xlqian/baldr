@@ -27,6 +27,8 @@ constexpr uint32_t kMaxTransitBlockId       = 1048575;
 constexpr uint32_t kMaxTransitLineId        = 1048576;
 constexpr uint32_t kMaxTransitDepartureTime = 131071;
 constexpr uint32_t kMaxTransitElapsedTime   = 32767;
+constexpr uint32_t kMaxTripId               = 536870912;  // 29 bits
+constexpr uint32_t kMaxHeadsignOffset       = 16777216;   // 24 bits
 
 // Payment constants. Bit constants.
 constexpr uint8_t kCoins  = 1; // Coins
