@@ -512,6 +512,15 @@ class DirectedEdge {
    */
   void set_internal(const bool internal);
 
+  uint32_t start_restriction() const;
+  void set_start_restriction(const uint32_t modes);
+
+  uint32_t end_restriction() const;
+  void set_end_restriction(const uint32_t modes);
+
+  bool part_of_complex_restriction() const;
+  void set_part_of_complex_restriction(const bool part_of);
+
   /**
    * Gets the turn type given the prior edge's local index
    * (index of the inbound edge).
@@ -733,44 +742,44 @@ class DirectedEdge {
 
   // Data offsets and flags for extended data. Where a flag exists the actual
   // data can be indexed by the directed edge Id within the tile.
-  uint64_t edgeinfo_offset_           : 25; // Offset to edge data.
-  uint64_t access_restriction_        : 12; // General restriction or access
-                                            // condition (per mode)
-  uint64_t start_complex_restriction_ : 12; // Complex restriction (per mode)
-                                            // starts on this directed edge
-  uint64_t end_complex_restriction_   : 12; // Complex restriction (per mode)
-                                            // ends on this directed edge
-  uint64_t exitsign_                  : 1;  // Exit signs exist for this edge
-  uint64_t spare1_                    : 2;
+  uint64_t edgeinfo_offset_     : 25; // Offset to edge data.
+  uint64_t access_restriction_  : 12; // General restriction or access
+                                      // condition (per mode)
+  uint64_t start_restriction_   : 12; // Complex restriction (per mode)
+                                      // starts on this directed edge
+  uint64_t end_restriction_     : 12; // Complex restriction (per mode)
+                                      // ends on this directed edge
+  uint64_t exitsign_            : 1;  // Exit signs exist for this edge
+  uint64_t spare1_              : 2;
 
   // Attributes. Can be used in edge costing methods to favor or avoid edges.
   // Speed values above 250 used for special cases (closures, construction)
-  uint64_t speed_          : 8; // Speed (kph)
-  uint64_t truck_speed_    : 8; // Truck speed (kph)
-  uint64_t restrictions_   : 8; // Restrictions - mask of local edge indexes
-                                // at the end node that are restricted.
-  uint64_t lanecount_      : 4; // Number of lanes
-  uint64_t bike_network_   : 4; // Edge that is part of a bicycle network
-  uint64_t use_            : 6; // Specific use types
-  uint64_t speed_type_     : 2; // Speed type (tagged vs. categorized)
-  uint64_t opp_index_      : 7; // Opposing directed edge index
-  uint64_t drive_on_right_ : 1; // Driving side. Right if true (false=left)
-  uint64_t deadend_        : 1; // A dead-end (no other driveable roads)
-  uint64_t spare3_         : 1;
-  uint64_t toll_           : 1; // Edge is part of a toll road.
-  uint64_t seasonal_       : 1; // Seasonal access (ex. no access in winter)
-  uint64_t dest_only_      : 1; // Access allowed to destination only
-                                //  (private or no through traffic)
-  uint64_t tunnel_         : 1; // Is this edge part of a tunnel
-  uint64_t bridge_         : 1; // Is this edge part of a bridge?
-  uint64_t roundabout_     : 1; // Edge is part of a roundabout
-  uint64_t unreachable_    : 1; // Edge that is unreachable by driving
-  uint64_t traffic_signal_ : 1; // Traffic signal at end of the directed edge
-  uint64_t forward_        : 1; // Is the edge info forward or reverse
-  uint64_t not_thru_       : 1; // Edge leads to "no-through" region
-  uint64_t cycle_lane_     : 2; // Does this edge have bicycle lanes?
-  uint64_t truck_route_    : 1; // Edge that is part of a truck route/network
-  uint64_t ctry_crossing_  : 1; // Does the edge cross into new country
+  uint64_t speed_                       : 8; // Speed (kph)
+  uint64_t truck_speed_                 : 8; // Truck speed (kph)
+  uint64_t restrictions_                : 8; // Restrictions - mask of local edge indexes
+                                             // at the end node that are restricted.
+  uint64_t lanecount_                   : 4; // Number of lanes
+  uint64_t bike_network_                : 4; // Edge that is part of a bicycle network
+  uint64_t use_                         : 6; // Specific use types
+  uint64_t speed_type_                  : 2; // Speed type (tagged vs. categorized)
+  uint64_t opp_index_                   : 7; // Opposing directed edge index
+  uint64_t drive_on_right_              : 1; // Driving side. Right if true (false=left)
+  uint64_t deadend_                     : 1; // A dead-end (no other driveable roads)
+  uint64_t part_of_complex_restriction_ : 1;
+  uint64_t toll_                        : 1; // Edge is part of a toll road.
+  uint64_t seasonal_                    : 1; // Seasonal access (ex. no access in winter)
+  uint64_t dest_only_                   : 1; // Access allowed to destination only
+                                             //  (private or no through traffic)
+  uint64_t tunnel_                      : 1; // Is this edge part of a tunnel
+  uint64_t bridge_                      : 1; // Is this edge part of a bridge?
+  uint64_t roundabout_                  : 1; // Edge is part of a roundabout
+  uint64_t unreachable_                 : 1; // Edge that is unreachable by driving
+  uint64_t traffic_signal_              : 1; // Traffic signal at end of the directed edge
+  uint64_t forward_                     : 1; // Is the edge info forward or reverse
+  uint64_t not_thru_                    : 1; // Edge leads to "no-through" region
+  uint64_t cycle_lane_                  : 2; // Does this edge have bicycle lanes?
+  uint64_t truck_route_                 : 1; // Edge that is part of a truck route/network
+  uint64_t ctry_crossing_               : 1; // Does the edge cross into new country
 
   // Legal access to the directed link (also include reverse direction access).
   // See graphconstants.h.
