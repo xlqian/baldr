@@ -512,6 +512,29 @@ void DirectedEdge::set_internal(const bool internal) {
   internal_ = internal;
 }
 
+uint32_t DirectedEdge::start_restriction() const {
+  return start_restriction_;
+}
+
+void DirectedEdge::set_start_restriction(const uint32_t modes) {
+  start_restriction_ = modes;
+}
+
+uint32_t DirectedEdge::end_restriction() const {
+  return end_restriction_;
+}
+
+void DirectedEdge::set_end_restriction(const uint32_t modes) {
+  end_restriction_ = modes;
+}
+
+bool DirectedEdge::part_of_complex_restriction() const {
+  return part_of_complex_restriction_;
+}
+void DirectedEdge::set_part_of_complex_restriction(const bool part_of) {
+  part_of_complex_restriction_ = part_of;
+}
+
 // Gets the turn type given the prior edge's local index
 Turn::Type DirectedEdge::turntype(const uint32_t localidx) const {
   // Turn type is 3 bits per index
@@ -722,8 +745,9 @@ json::MapPtr DirectedEdge::json() const {
     //{"edge_info_offset", static_cast<uint64_t>(edgeinfo_offset_)},
     //{"restrictions", restrictions_},
     {"access_restriction", static_cast<bool>(access_restriction_)},
-    {"start_complex_restriction", static_cast<bool>(start_complex_restriction_)},
-    {"end_complex_restriction", static_cast<bool>(end_complex_restriction_)},
+    {"start_restriction", access_json(start_restriction_)},
+    {"end_restriction", access_json(end_restriction_)},
+    {"part_of_complex_restriction", static_cast<bool>(part_of_complex_restriction_)},
     {"has_exit_sign", static_cast<bool>(exitsign_)},
     {"drive_on_right", static_cast<bool>(drive_on_right_)},
     {"toll", static_cast<bool>(toll_)},
