@@ -97,13 +97,13 @@ class TransitDeparture {
   uint32_t tripid_;               // TripId (internal).
   uint32_t headsign_offset_;      // Headsign offset into the names/text list.
 
-  uint32_t blockid_         : 19; // Block Id
+  uint32_t blockid_         : 20;  // Block Id
   uint32_t schedule_index_  : 12; // Schedule validity index
 
 
   uint32_t departure_time_  : 17; // Departure time (seconds from midnight)
                                   // (86400 secs per day)
-  uint32_t elapsed_time_    : 16; // Time (secs) until arrival at next stop
+  uint32_t elapsed_time_    : 15; // Time (secs) until arrival at next stop
 };
 
 }
