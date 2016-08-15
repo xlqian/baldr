@@ -12,9 +12,7 @@ TransitDeparture::TransitDeparture(const uint32_t lineid,
                  const uint32_t headsign_offset,
                  const uint32_t departure_time,
                  const uint32_t elapsed_time,
-                 const uint32_t schedule_index)
-    : tripid_(tripid),
-      headsign_offset_(headsign_offset) {
+                 const uint32_t schedule_index) {
   // Protect against exceeding max. values
   if (lineid > kMaxTransitLineId) {
     throw std::runtime_error("Exceeded maximum transit line Ids per tile");
@@ -25,6 +23,16 @@ TransitDeparture::TransitDeparture(const uint32_t lineid,
     throw std::runtime_error("Exceeded maximum transit routes per tile");
   }
   routeid_ = routeid;
+
+  if (tripid > kMaxTripId) {
+    throw std::runtime_error("Exceeded maximum trip Id");
+  }
+  tripid_ = tripid;
+
+  if (headsign_offset > kMaxHeadsignOffset) {
+    throw std::runtime_error("Exceeded maximum headsign offset");
+  }
+  headsign_offset_ = headsign_offset;
 
   if (blockid > kMaxTransitBlockId) {
     throw std::runtime_error("Exceeded maximum transit block Id");
