@@ -55,9 +55,11 @@ GraphTile::GraphTile()
       access_restrictions_(nullptr),
       signs_(nullptr),
       admins_(nullptr),
+      complex_restriction_(nullptr),
       edge_bins_(nullptr),
       edgeinfo_(nullptr),
       textlist_(nullptr),
+      complex_restriction_size_(0),
       edgeinfo_size_(0),
       textlist_size_(0){
 }
@@ -134,6 +136,9 @@ LOG_INFO("Departures: " + std::to_string(header_->departurecount()) +
     // Set a pointer to the admininstrative information list
     admins_ = reinterpret_cast<Admin*>(ptr);
     ptr += header_->admincount() * sizeof(Admin);
+
+    complex_restriction_ = graphtile_.get() + header_->complex_restriction_offset();
+    complex_restriction_size_ = header_->textlist_offset() - header_->complex_restriction_offset();
 
     // Set a pointer to the edge bin list
     edge_bins_ = reinterpret_cast<GraphId*>(ptr);
