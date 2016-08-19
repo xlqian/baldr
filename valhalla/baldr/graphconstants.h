@@ -85,6 +85,19 @@ inline std::string to_string(RoadClass r) {
   return i->second;
 }
 
+// Minimum meters offset from start/end of shape for finding heading
+constexpr float kMinMetersOffsetForHeading = 15.0f;
+inline float GetOffsetForHeading(RoadClass road_class) {
+  uint8_t rc = static_cast<uint8_t>(road_class);
+  float offset = kMinMetersOffsetForHeading;
+  if (rc < 2) {
+    offset *= 1.6f;
+  } else if (rc < 5) {
+    offset *= 1.4f;
+  }
+  return offset;
+}
+
 // Maximum length in meters of an internal intersection edge
 constexpr float kMaxInternalLength = 32.0f;
 
