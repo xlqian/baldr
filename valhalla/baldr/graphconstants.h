@@ -393,6 +393,34 @@ enum class AccessType : uint8_t {
   kMaxAxleLoad = 5
 };
 
+// Minimum meters offset from start/end of shape for finding heading
+constexpr float kMinMetersOffsetForHeading = 15.0f;
+inline float GetOffsetForHeading(RoadClass road_class, Use use) {
+  uint8_t rc = static_cast<uint8_t>(road_class);
+  float offset = kMinMetersOffsetForHeading;
+  // Adjust offset based on road class
+  if (rc < 2) {
+    offset *= 1.6f;
+  } else if (rc < 5) {
+    offset *= 1.4f;
+  }
+
+  // Adjust offset based on use
+  switch (use) {
+    case Use::kCycleway:
+    case Use::kMountainBike:
+    case Use::kFootway:
+    case Use::kSteps:
+    case Use::kPath:
+    case Use::kPedestrian:
+    case Use::kBridleway: {
+      offset *= 0.5f;
+    }
+  }
+
+  return offset;
+}
+
 // ------------------------------- Transit information --------------------- //
 
 constexpr uint32_t kOneStopIdSize = 256;
