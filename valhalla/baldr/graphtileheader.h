@@ -221,6 +221,20 @@ class GraphTileHeader {
   void set_admincount(const uint32_t count);
 
   /**
+   * Get the offset to the Complex Restriction list.
+   * @return  Returns the number of bytes to offset to the the list of
+   *          complex restrictions.
+   */
+  uint32_t complex_restriction_offset() const;
+
+  /**
+   * Sets the offset to the list of complex restrictions.
+   * @param offset Offset in bytes to the start of the complex restriction
+   *               list.
+   */
+  void set_complex_restriction_offset(const uint32_t offset);
+
+  /**
    * Gets the offset to the edge info.
    * @return  Returns the number of bytes to offset to the edge information.
    */
@@ -243,20 +257,6 @@ class GraphTileHeader {
    * @param offset Offset in bytes to the start of the text list.
    */
   void set_textlist_offset(const uint32_t offset);
-
-  /**
-   * Get the offset to the Complex Restriction list.
-   * @return  Returns the number of bytes to offset to the the list of
-   *          complex restrictions.
-   */
-  uint32_t complex_restriction_offset() const;
-
-  /**
-   * Sets the offset to the list of complex restrictions.
-   * @param offset Offset in bytes to the start of the complex restriction
-   *               list.
-   */
-  void set_complex_restriction_offset(const uint32_t offset);
 
   /**
    * Get the offset to the given bin in the 5x5 grid, the bins contain
@@ -312,9 +312,9 @@ class GraphTileHeader {
   uint32_t admincount_;                 // Number of admin records
 
   // Offsets to beginning of data (for variable size records)
+  uint32_t complex_restriction_offset_; // Offset to complex restriction list
   uint32_t edgeinfo_offset_;            // Offset to edge info
   uint32_t textlist_offset_;            // Offset to text list
-  uint32_t complex_restriction_offset_; // Offset to complex restriction list
 
   // Offsets for each bin of the 5x5 grid (for search/lookup)
   uint32_t bin_offsets_[kBinCount];

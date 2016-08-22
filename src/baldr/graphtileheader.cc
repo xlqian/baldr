@@ -199,6 +199,14 @@ void GraphTileHeader::set_admincount(const uint32_t count) {
   admincount_ = count;
 }
 
+uint32_t GraphTileHeader::complex_restriction_offset() const {
+  return complex_restriction_offset_;
+}
+
+void GraphTileHeader::set_complex_restriction_offset(const uint32_t offset) {
+  complex_restriction_offset_ = offset;
+}
+
 // Get the offset in bytes to the start of the edge information.
 uint32_t GraphTileHeader::edgeinfo_offset() const {
   return edgeinfo_offset_;
@@ -217,16 +225,6 @@ uint32_t GraphTileHeader::textlist_offset() const {
 // Sets the offset to the text list.
 void GraphTileHeader::set_textlist_offset(const uint32_t offset) {
   textlist_offset_ = offset;
-}
-
-// Get the offset in bytes to the complex restriction list.
-uint32_t GraphTileHeader::complex_restriction_offset() const {
-  return complex_restriction_offset_;
-}
-
-// Sets the offset to the list of complex restrictions.
-void GraphTileHeader::set_complex_restriction_offset(const uint32_t offset) {
-  complex_restriction_offset_ = offset;
 }
 
 // Sets the edge bin offsets
