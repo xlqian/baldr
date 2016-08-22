@@ -50,6 +50,7 @@ nobase_include_HEADERS = \
 	valhalla/baldr/accessrestriction.h \
 	valhalla/baldr/admin.h \
 	valhalla/baldr/admininfo.h \
+	valhalla/baldr/complexrestriction.h \
 	valhalla/baldr/connectivity_map.h \
 	valhalla/baldr/datetime.h \
 	valhalla/baldr/directededge.h \
@@ -87,6 +88,7 @@ libvalhalla_baldr_la_SOURCES = \
 	src/baldr/accessrestriction.cc \
 	src/baldr/admin.cc \
 	src/baldr/admininfo.cc \
+	src/baldr/complexrestriction.cc \
 	src/baldr/connectivity_map.cc \
 	src/baldr/datetime.cc \
 	src/baldr/directededge.cc \
