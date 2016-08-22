@@ -55,8 +55,8 @@ GraphTile::GraphTile()
       access_restrictions_(nullptr),
       signs_(nullptr),
       admins_(nullptr),
-      complex_restriction_(nullptr),
       edge_bins_(nullptr),
+      complex_restriction_(nullptr),
       edgeinfo_(nullptr),
       textlist_(nullptr),
       complex_restriction_size_(0),
@@ -137,11 +137,12 @@ LOG_INFO("Departures: " + std::to_string(header_->departurecount()) +
     admins_ = reinterpret_cast<Admin*>(ptr);
     ptr += header_->admincount() * sizeof(Admin);
 
-    complex_restriction_ = graphtile_.get() + header_->complex_restriction_offset();
-    complex_restriction_size_ = header_->textlist_offset() - header_->complex_restriction_offset();
-
     // Set a pointer to the edge bin list
     edge_bins_ = reinterpret_cast<GraphId*>(ptr);
+
+    // Start of restriction information and its size
+    complex_restriction_ = graphtile_.get() + header_->complex_restriction_offset();
+    complex_restriction_size_ = header_->edgeinfo_offset() - header_->complex_restriction_offset();
 
     // Start of edge information and its size
     edgeinfo_ = graphtile_.get() + header_->edgeinfo_offset();
@@ -319,6 +320,24 @@ GraphId GraphTile::GetOpposingEdgeId(const DirectedEdge* edge) const {
 // Get a pointer to edge info.
 std::unique_ptr<const EdgeInfo> GraphTile::edgeinfo(const size_t offset) const {
   return std::unique_ptr<EdgeInfo>(new EdgeInfo(edgeinfo_ + offset, textlist_, textlist_size_));
+}
+
+// Get the complex restrictions in the forward or reverse order.
+std::unordered_multimap<uint64_t, ComplexRestriction> GraphTile::GetRestrictions(const bool reverse) const {
+
+  std::unordered_multimap<uint64_t, ComplexRestriction> cr_multimap;
+  size_t offset = 0;
+  while (offset < complex_restriction_size_) {
+
+    // send the reverse flag to the constructor so that we know if we should reverse the vias or not
+    ComplexRestriction cr(complex_restriction_ + offset, reverse);
+    offset += sizeof(cr);
+    if (reverse)
+      cr_multimap.emplace(cr.to_id(), cr);
+    else
+      cr_multimap.emplace(cr.from_id(), cr);
+  }
+  return cr_multimap;
 }
 
 // Get the directed edges outbound from the specified node index.

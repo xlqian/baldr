@@ -4,6 +4,7 @@
 #include <valhalla/baldr/accessrestriction.h>
 #include <valhalla/baldr/graphid.h>
 #include <valhalla/baldr/graphtileheader.h>
+#include <valhalla/baldr/complexrestriction.h>
 #include <valhalla/baldr/directededge.h>
 #include <valhalla/baldr/nodeinfo.h>
 #include <valhalla/baldr/transitdeparture.h>
@@ -129,6 +130,13 @@ class GraphTile {
    * @return  Returns edge info.
    */
   std::unique_ptr<const EdgeInfo> edgeinfo(const size_t offset) const;
+
+  /**
+   * Get the complex restrictions in the forward or reverse order.
+   * @param   forward - do we want the restrictions in reverse order?
+   * @return  Returns the multi map of complex restrictions in the order requested
+   */
+  std::unordered_multimap<uint64_t, ComplexRestriction> GetRestrictions(const bool forward) const;
 
   /**
    * Convenience method to get the directed edges originating at a node.
@@ -297,10 +305,8 @@ class GraphTile {
   // indexed directly.
   Admin* admins_;
 
-  // List of complex restriction structures.
   char* complex_restriction_;
 
-  // Size of the complex restricton data
   std::size_t complex_restriction_size_;
 
   // List of edge info structures. Since edgeinfo is not fixed size we
