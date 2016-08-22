@@ -97,7 +97,12 @@ const std::vector<uint64_t> ComplexRestriction::GetVias() const {
   std::vector<uint64_t> vias;
   for (uint32_t i = 0; i < via_count(); i++) {
     uint64_t id = GetViaId(i);
-    vias.push_back(id);
+
+    if (i < kMaxViasPerRestriction) {
+      vias.push_back(id);
+    } else {
+      throw std::runtime_error("GetVias: count exceeds max via amount per restriction.");
+    }
   }
   if (is_reversed())
     std::reverse(vias.begin(), vias.end());
