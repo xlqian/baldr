@@ -91,6 +91,8 @@ GraphId GraphReader::GetOpposingEdgeId(const GraphId& edgeid) {
 }
 GraphId GraphReader::GetOpposingEdgeId(const GraphId& edgeid, const GraphTile*& tile) {
   tile = GetGraphTile(edgeid);
+  if(!tile)
+    return {};
   const auto* directededge = tile->directededge(edgeid);
 
   // For now return an invalid Id if this is a transit edge
