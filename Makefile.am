@@ -48,6 +48,7 @@ CLEANFILES = src/baldr/date_time_zonespec.h
 lib_LTLIBRARIES = libvalhalla_baldr.la
 nobase_include_HEADERS = \
 	valhalla/baldr/accessrestriction.h \
+	valhalla/baldr/adjacencylist.h \
 	valhalla/baldr/admin.h \
 	valhalla/baldr/admininfo.h \
 	valhalla/baldr/connectivity_map.h \
@@ -85,6 +86,7 @@ nobase_include_HEADERS = \
 	valhalla/baldr/verbal_text_formatter_factory.h 
 libvalhalla_baldr_la_SOURCES = \
 	src/baldr/accessrestriction.cc \
+	src/baldr/adjacencylist.cc \
 	src/baldr/admin.cc \
 	src/baldr/admininfo.cc \
 	src/baldr/connectivity_map.cc \
@@ -125,6 +127,7 @@ libvalhalla_baldr_la_LIBADD = $(DEPS_LIBS) $(VALHALLA_DEPS_LIBS) @BOOST_LDFLAGS@
 # tests
 check_PROGRAMS = \
 	test/location \
+	test/adjacencylist \
 	test/admin \
 	test/datetime \
 	test/directededge \
@@ -147,6 +150,9 @@ check_PROGRAMS = \
 test_location_SOURCES = test/location.cc test/test.cc
 test_location_CPPFLAGS = $(DEPS_CFLAGS) $(VALHALLA_DEPS_CFLAGS) 
 test_location_LDADD = $(DEPS_LIBS) $(VALHALLA_DEPS_LIBS) libvalhalla_baldr.la
+test_adjacencylist_SOURCES = test/adjacencylist.cc test/test.cc
+test_adjacencylist_CPPFLAGS = $(DEPS_CFLAGS) $(VALHALLA_DEPS_CFLAGS) @BOOST_CPPFLAGS@
+test_adjacencylist_LDADD = $(DEPS_LIBS) $(VALHALLA_DEPS_LIBS) @BOOST_LDFLAGS@ libvalhalla_baldr.la
 test_admin_SOURCES = test/admin.cc test/test.cc
 test_admin_CPPFLAGS = $(DEPS_CFLAGS) $(VALHALLA_DEPS_CFLAGS) @BOOST_CPPFLAGS@
 test_admin_LDADD = $(DEPS_LIBS) $(VALHALLA_DEPS_LIBS) @BOOST_LDFLAGS@ libvalhalla_baldr.la
