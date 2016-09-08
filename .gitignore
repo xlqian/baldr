@@ -43,9 +43,9 @@ test-suite.log
 test-driver
 test/location
 test/admin
-test/adjacencylist
 test/datetime
 test/directededge
+test/double_bucket_queue
 test/graphid
 test/tilehierarchy
 test/graphtile
