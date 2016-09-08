@@ -77,17 +77,18 @@ void AdjacencyList::decrease(const uint32_t label,
 
 // Remove the label with the lowest cost
 uint32_t AdjacencyList::pop() {
-  // Return a label from lowest non-empty bucket.
-  while (currentbucket_ != buckets_.end()) {
-    if (!currentbucket_->empty()) {
-      uint32_t label = currentbucket_->front();
-      currentbucket_->pop_front();
-      return label;
-    }
+  const auto nextlabel = [this]() {
+    uint32_t label = currentbucket_->front();
+    currentbucket_->pop_front();
+    return label;
+  };
 
-    // Advance to next bucket and increment current cost
-    currentbucket_++;
-    currentcost_ += bucketsize_;
+  // Return a label from lowest non-empty bucket.
+  for ( ; currentbucket_ != buckets_.end(); currentbucket_++,
+          currentcost_ += bucketsize_) {
+    if (!currentbucket_->empty()) {
+      return nextlabel();
+    }
   }
 
   // No labels found in the low-level buckets. Return an invalid label if no
@@ -100,17 +101,14 @@ uint32_t AdjacencyList::pop() {
   }
 
   // Move labels from the overflow bucket to the low level buckets. Then find
-  // smallest bucket that is not empty and set it as the currentbucket
+  // smallest bucket that is not empty and set it as the currentbucket and
+  // return its first label.
   empty_overflow();
   for (currentbucket_ = buckets_.begin(); currentbucket_ != buckets_.end();
-       currentbucket_++) {
-    // If current bucket is not empty return the first label off the list
+           currentbucket_++, currentcost_ += bucketsize_) {
     if (!currentbucket_->empty()) {
-      uint32_t label = currentbucket_->front();
-      currentbucket_->pop_front();
-      return label;
+      return nextlabel();
     }
-    currentcost_ += bucketsize_;
   }
   return kInvalidLabel;
 }
