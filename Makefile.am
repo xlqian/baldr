@@ -53,6 +53,7 @@ nobase_include_HEADERS = \
 	valhalla/baldr/connectivity_map.h \
 	valhalla/baldr/datetime.h \
 	valhalla/baldr/directededge.h \
+	valhalla/baldr/double_bucket_queue.h \
 	valhalla/baldr/edgeinfo.h \
 	valhalla/baldr/geojson.h \
 	valhalla/baldr/graphconstants.h \
@@ -90,6 +91,7 @@ libvalhalla_baldr_la_SOURCES = \
 	src/baldr/connectivity_map.cc \
 	src/baldr/datetime.cc \
 	src/baldr/directededge.cc \
+	src/baldr/double_bucket_queue.cc \
 	src/baldr/edgeinfo.cc \
 	src/baldr/geojson.cc \
 	src/baldr/graphid.cc \
@@ -128,6 +130,7 @@ check_PROGRAMS = \
 	test/admin \
 	test/datetime \
 	test/directededge \
+	test/double_bucket_queue \
 	test/graphid \
 	test/tilehierarchy \
 	test/graphtile \
@@ -147,6 +150,9 @@ check_PROGRAMS = \
 test_location_SOURCES = test/location.cc test/test.cc
 test_location_CPPFLAGS = $(DEPS_CFLAGS) $(VALHALLA_DEPS_CFLAGS) 
 test_location_LDADD = $(DEPS_LIBS) $(VALHALLA_DEPS_LIBS) libvalhalla_baldr.la
+test_double_bucket_queue_SOURCES = test/double_bucket_queue.cc test/test.cc
+test_double_bucket_queue_CPPFLAGS = $(DEPS_CFLAGS) $(VALHALLA_DEPS_CFLAGS) @BOOST_CPPFLAGS@
+test_double_bucket_queue_LDADD = $(DEPS_LIBS) $(VALHALLA_DEPS_LIBS) @BOOST_LDFLAGS@ libvalhalla_baldr.la
 test_admin_SOURCES = test/admin.cc test/test.cc
 test_admin_CPPFLAGS = $(DEPS_CFLAGS) $(VALHALLA_DEPS_CFLAGS) @BOOST_CPPFLAGS@
 test_admin_LDADD = $(DEPS_LIBS) $(VALHALLA_DEPS_LIBS) @BOOST_LDFLAGS@ libvalhalla_baldr.la

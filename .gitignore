@@ -45,6 +45,7 @@ test/location
 test/admin
 test/datetime
 test/directededge
+test/double_bucket_queue
 test/graphid
 test/tilehierarchy
 test/graphtile
