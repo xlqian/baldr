@@ -151,7 +151,7 @@ LOG_INFO("Departures: " + std::to_string(header_->departurecount()) +
     //routes.  We save 2 maps because operators contain all of their route's tile_line pairs
     //and it is used to include or exclude the operator as a whole.
     if (graphid.level() == 3) {
-      const auto& deps = GetTransitDepartures();
+      auto deps = GetTransitDepartures();
       for(auto const& dep: deps) {
         const auto* t = GetTransitRoute(dep.second->routeid());
         const auto& route_one_stop = GetName(t->one_stop_offset());
