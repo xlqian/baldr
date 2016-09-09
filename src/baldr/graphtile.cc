@@ -146,6 +146,44 @@ LOG_INFO("Departures: " + std::to_string(header_->departurecount()) +
     textlist_ = graphtile_.get() + header_->textlist_offset();
     textlist_size_ = filesize - header_->textlist_offset();
 
+    //if this tile is transit then we need to save off the pair<tileid,lineid> lookup via
+    //onestop_ids.  This will be used for including or excluding transit lines for transit
+    //routes.  We save 2 maps because operators contain all of their route's tile_line pairs
+    //and it is used to include or exclude the operator as a whole.
+    if (graphid.level() == 3) {
+
+      for (uint32_t i = 0; i < header_->directededgecount(); i++) {
+        if (directededges_[i].lineid() != 0) {
+
+          const auto& dep = GetTransitDeparture(directededges_[i].lineid());
+
+          if (dep) {
+            const auto& t = GetTransitRoute(dep->routeid());
+            const auto& route_one_stop = GetName(t->one_stop_offset());
+            auto stops = route_one_stops.find(route_one_stop);
+            if (stops == route_one_stops.end()) {
+              std::list<tile_line_pair> tile_line_ids;
+              tile_line_ids.emplace_back(tile_line_pair(graphid.tileid(), dep->lineid()));
+              route_one_stops[route_one_stop] = tile_line_ids;
+            } else {
+              route_one_stops[route_one_stop].emplace_back(tile_line_pair(graphid.tileid(), dep->lineid()));
+            }
+
+            // operators contain all of their route's tile_line pairs.
+            const auto& op_one_stop = GetName(t->op_by_onestop_id_offset());
+            stops = oper_one_stops.find(op_one_stop);
+            if (stops == oper_one_stops.end()) {
+              std::list<tile_line_pair> tile_line_ids;
+              tile_line_ids.emplace_back(tile_line_pair(graphid.tileid(), dep->lineid()));
+              oper_one_stops[op_one_stop] = tile_line_ids;
+            } else {
+              oper_one_stops[op_one_stop].emplace_back(tile_line_pair(graphid.tileid(), dep->lineid()));
+            }
+          }
+        }
+      }
+    }
+
     // Set the size to indicate success
     size_ = filesize;
   }
@@ -411,7 +449,7 @@ std::vector<SignInfo> GraphTile::GetSigns(const uint32_t idx) const {
   return signs;
 }
 
-// Get the next departure given the directed edge Id and the current
+// Get the next departure given the directed line Id and the current
 // time (seconds from midnight).
 const TransitDeparture* GraphTile::GetNextDeparture(const uint32_t lineid,
                  const uint32_t current_time, const uint32_t day,
@@ -534,6 +572,53 @@ const TransitDeparture* GraphTile::GetTransitDeparture(const uint32_t lineid,
   LOG_INFO("No departures found for lineid = " + std::to_string(lineid) +
            " and tripid = " + std::to_string(tripid));
   return nullptr;
+}
+
+// Get a route index given the line Id
+const TransitDeparture* GraphTile::GetTransitDeparture(const uint32_t lineid) const {
+
+  uint32_t count = header_->departurecount();
+  if (count == 0) {
+    return nullptr;
+  }
+
+  // Departures are sorted by edge Id and then by departure time.
+  // Binary search to find a departure with matching edge Id.
+  int32_t low = 0;
+  int32_t high = count-1;
+  int32_t mid;
+  bool found = false;
+  while (low <= high) {
+    mid = (low + high) / 2;
+    if (departures_[mid].lineid() == lineid) {
+      found = true;
+      break;
+    }
+    if (lineid < departures_[mid].lineid() ) {
+      high = mid - 1;
+    } else {
+      low = mid + 1;
+    }
+  }
+
+  if (!found) {
+    LOG_INFO("No departures found for lineid = " + std::to_string(lineid));
+    return nullptr;
+  }
+
+  return &departures_[mid];
+
+}
+// Get the route onestops in this tile.
+std::unordered_map<std::string, std::list<tile_line_pair>>
+GraphTile::GetRouteOneStops() const {
+  return route_one_stops;
+}
+
+// Get the operator onestops in this tile.
+std::unordered_map<std::string, std::list<tile_line_pair>>
+GraphTile::GetOperatorOneStops() const {
+  return oper_one_stops;
 }
 
 // Get the transit stop given its index within the tile.
