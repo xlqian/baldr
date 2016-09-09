@@ -210,12 +210,10 @@ class GraphTile {
                                               const uint32_t tripid) const;
 
   /**
-   * Get a departure given the line Id
-   * @param   lineid  Transit Line Id
-   * @return  Returns a pointer to the transit departure information.
-   *          Returns nullptr if no departure is found.
+   * Get the departures based on the line Id
+   * @return  Returns a map of lineids to departures.
    */
-  const TransitDeparture* GetTransitDeparture(const uint32_t lineid) const;
+  std::unordered_map<uint32_t,TransitDeparture*> GetTransitDepartures() const;
 
   /**
    * Get the route onestops in this tile

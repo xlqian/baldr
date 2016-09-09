@@ -151,35 +151,28 @@ LOG_INFO("Departures: " + std::to_string(header_->departurecount()) +
     //routes.  We save 2 maps because operators contain all of their route's tile_line pairs
     //and it is used to include or exclude the operator as a whole.
     if (graphid.level() == 3) {
+      const auto& deps = GetTransitDepartures();
+      for(auto const& dep: deps) {
+        const auto* t = GetTransitRoute(dep.second->routeid());
+        const auto& route_one_stop = GetName(t->one_stop_offset());
+        auto stops = route_one_stops.find(route_one_stop);
+        if (stops == route_one_stops.end()) {
+          std::list<tile_line_pair> tile_line_ids;
+          tile_line_ids.emplace_back(tile_line_pair(graphid.tileid(), dep.second->lineid()));
+          route_one_stops[route_one_stop] = tile_line_ids;
+        } else {
+          route_one_stops[route_one_stop].emplace_back(tile_line_pair(graphid.tileid(), dep.second->lineid()));
+        }
 
-      for (uint32_t i = 0; i < header_->directededgecount(); i++) {
-        if (directededges_[i].lineid() != 0) {
-
-          const auto& dep = GetTransitDeparture(directededges_[i].lineid());
-
-          if (dep) {
-            const auto& t = GetTransitRoute(dep->routeid());
-            const auto& route_one_stop = GetName(t->one_stop_offset());
-            auto stops = route_one_stops.find(route_one_stop);
-            if (stops == route_one_stops.end()) {
-              std::list<tile_line_pair> tile_line_ids;
-              tile_line_ids.emplace_back(tile_line_pair(graphid.tileid(), dep->lineid()));
-              route_one_stops[route_one_stop] = tile_line_ids;
-            } else {
-              route_one_stops[route_one_stop].emplace_back(tile_line_pair(graphid.tileid(), dep->lineid()));
-            }
-
-            // operators contain all of their route's tile_line pairs.
-            const auto& op_one_stop = GetName(t->op_by_onestop_id_offset());
-            stops = oper_one_stops.find(op_one_stop);
-            if (stops == oper_one_stops.end()) {
-              std::list<tile_line_pair> tile_line_ids;
-              tile_line_ids.emplace_back(tile_line_pair(graphid.tileid(), dep->lineid()));
-              oper_one_stops[op_one_stop] = tile_line_ids;
-            } else {
-              oper_one_stops[op_one_stop].emplace_back(tile_line_pair(graphid.tileid(), dep->lineid()));
-            }
-          }
+        // operators contain all of their route's tile_line pairs.
+        const auto& op_one_stop = GetName(t->op_by_onestop_id_offset());
+        stops = oper_one_stops.find(op_one_stop);
+        if (stops == oper_one_stops.end()) {
+          std::list<tile_line_pair> tile_line_ids;
+          tile_line_ids.emplace_back(tile_line_pair(graphid.tileid(), dep.second->lineid()));
+          oper_one_stops[op_one_stop] = tile_line_ids;
+        } else {
+          oper_one_stops[op_one_stop].emplace_back(tile_line_pair(graphid.tileid(), dep.second->lineid()));
         }
       }
     }
@@ -574,41 +567,18 @@ const TransitDeparture* GraphTile::GetTransitDeparture(const uint32_t lineid,
   return nullptr;
 }
 
-// Get a route index given the line Id
-const TransitDeparture* GraphTile::GetTransitDeparture(const uint32_t lineid) const {
+// Get a map of departures based on lineid.  No dups exist in the map.
+std::unordered_map<uint32_t,TransitDeparture*> GraphTile::GetTransitDepartures() const {
 
-  uint32_t count = header_->departurecount();
-  if (count == 0) {
-    return nullptr;
-  }
+  std::unordered_map<uint32_t,TransitDeparture*> deps;
+  deps.reserve(header_->departurecount());
 
-  // Departures are sorted by edge Id and then by departure time.
-  // Binary search to find a departure with matching edge Id.
-  int32_t low = 0;
-  int32_t high = count-1;
-  int32_t mid;
-  bool found = false;
-  while (low <= high) {
-    mid = (low + high) / 2;
-    if (departures_[mid].lineid() == lineid) {
-      found = true;
-      break;
-    }
-    if (lineid < departures_[mid].lineid() ) {
-      high = mid - 1;
-    } else {
-      low = mid + 1;
-    }
-  }
+  for (uint32_t i = 0; i < header_->departurecount(); i++)
+    deps.insert({departures_[i].lineid(),&departures_[i]});
 
-  if (!found) {
-    LOG_INFO("No departures found for lineid = " + std::to_string(lineid));
-    return nullptr;
-  }
-
-  return &departures_[mid];
-
+  return deps;
 }
+
 // Get the route onestops in this tile.
 std::unordered_map<std::string, std::list<tile_line_pair>>
 GraphTile::GetRouteOneStops() const {
