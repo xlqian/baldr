@@ -23,11 +23,14 @@
 namespace valhalla {
 namespace baldr {
 
+using tile_line_pair = std::pair<uint32_t, uint32_t>;
+
 /**
  * Graph information for a tile within the Tiled Hierarchical Graph.
  */
 class GraphTile {
  public:
+
   /**
    * Constructor
    */
@@ -181,7 +184,7 @@ class GraphTile {
   /**
    * Get the next departure given the directed edge Id and the current
    * time (seconds from midnight). TODO - what if crosses midnight?
-   * @param   edgeid            Directed edge Id.
+   * @param   lineid            Transit Line Id
    * @param   current_time      Current time (seconds from midnight).
    * @param   day               Days since the tile creation date.
    * @param   dow               Day of week (see graphconstants.h)
@@ -190,7 +193,7 @@ class GraphTile {
    * @return  Returns a pointer to the transit departure information.
    *          Returns nullptr if no departures are found.
    */
-  const TransitDeparture* GetNextDeparture(const uint32_t edgeid,
+  const TransitDeparture* GetNextDeparture(const uint32_t lineid,
                                            const uint32_t current_time,
                                            const uint32_t day,
                                            const uint32_t dow,
@@ -198,13 +201,34 @@ class GraphTile {
 
   /**
    * Get the departure given the directed edge Id and tripid
-   * @param   edgeid  Directed edge Id.
+   * @param   lineid  Transit Line Id
    * @param   tripid  Trip Id.
    * @return  Returns a pointer to the transit departure information.
    *          Returns nullptr if no departure is found.
    */
-  const TransitDeparture* GetTransitDeparture(const uint32_t edgeid,
+  const TransitDeparture* GetTransitDeparture(const uint32_t lineid,
                                               const uint32_t tripid) const;
+
+  /**
+   * Get the departures based on the line Id
+   * @return  Returns a map of lineids to departures.
+   */
+  std::unordered_map<uint32_t,TransitDeparture*> GetTransitDepartures() const;
+
+  /**
+   * Get the route onestops in this tile
+   * @return  Returns a map of onestops
+   */
+  std::unordered_map<std::string, std::list<tile_line_pair>>
+    GetRouteOneStops() const;
+
+  /**
+   * Get the operator onestops in this tile
+   * @return  Returns a map of onestops
+   */
+  std::unordered_map<std::string, std::list<tile_line_pair>>
+    GetOperatorOneStops() const;
+
   /**
    * Get the transit stop given its index
    * @param   idx  stop index.
@@ -314,6 +338,13 @@ class GraphTile {
   // List of edge graph ids. The list is broken up in bins which have
   // indices in the tile header.
   GraphId* edge_bins_;
+
+  // Map of route one stops in this tile.
+  std::unordered_map<std::string, std::list<tile_line_pair>> route_one_stops;
+
+  // Map of operator one stops in this tile.
+  std::unordered_map<std::string, std::list<tile_line_pair>> oper_one_stops;
+
 };
 
 }
