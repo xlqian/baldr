@@ -23,7 +23,7 @@
 namespace valhalla {
 namespace baldr {
 
-using tile_line_pair = std::pair<uint32_t, uint32_t>;
+using tile_index_pair = std::pair<uint32_t, uint32_t>;
 
 /**
  * Graph information for a tile within the Tiled Hierarchical Graph.
@@ -216,17 +216,24 @@ class GraphTile {
   std::unordered_map<uint32_t,TransitDeparture*> GetTransitDepartures() const;
 
   /**
+   * Get the stop onestops in this tile
+   * @return  Returns a map of onestops
+   */
+  std::unordered_map<std::string, tile_index_pair>
+    GetStopOneStops() const;
+
+  /**
    * Get the route onestops in this tile
    * @return  Returns a map of onestops
    */
-  std::unordered_map<std::string, std::list<tile_line_pair>>
+  std::unordered_map<std::string, std::list<tile_index_pair>>
     GetRouteOneStops() const;
 
   /**
    * Get the operator onestops in this tile
    * @return  Returns a map of onestops
    */
-  std::unordered_map<std::string, std::list<tile_line_pair>>
+  std::unordered_map<std::string, std::list<tile_index_pair>>
     GetOperatorOneStops() const;
 
   /**
@@ -339,11 +346,14 @@ class GraphTile {
   // indices in the tile header.
   GraphId* edge_bins_;
 
+  // Map of stop one stops in this tile.
+  std::unordered_map<std::string, tile_index_pair> stop_one_stops;
+
   // Map of route one stops in this tile.
-  std::unordered_map<std::string, std::list<tile_line_pair>> route_one_stops;
+  std::unordered_map<std::string, std::list<tile_index_pair>> route_one_stops;
 
   // Map of operator one stops in this tile.
-  std::unordered_map<std::string, std::list<tile_line_pair>> oper_one_stops;
+  std::unordered_map<std::string, std::list<tile_index_pair>> oper_one_stops;
 
 };
 
