@@ -151,28 +151,35 @@ LOG_INFO("Departures: " + std::to_string(header_->departurecount()) +
     //routes.  We save 2 maps because operators contain all of their route's tile_line pairs
     //and it is used to include or exclude the operator as a whole.
     if (graphid.level() == 3) {
-      const auto& deps = GetTransitDepartures();
+
+      stop_one_stops.reserve(header_->stopcount());
+      for (uint32_t i = 0; i < header_->stopcount(); i++) {
+        const auto& stop = GetName(transit_stops_[i].one_stop_offset());
+        stop_one_stops[stop] = tile_index_pair(graphid.tileid(),i);
+      }
+
+      auto deps = GetTransitDepartures();
       for(auto const& dep: deps) {
         const auto* t = GetTransitRoute(dep.second->routeid());
         const auto& route_one_stop = GetName(t->one_stop_offset());
         auto stops = route_one_stops.find(route_one_stop);
         if (stops == route_one_stops.end()) {
-          std::list<tile_line_pair> tile_line_ids;
-          tile_line_ids.emplace_back(tile_line_pair(graphid.tileid(), dep.second->lineid()));
+          std::list<tile_index_pair> tile_line_ids;
+          tile_line_ids.emplace_back(tile_index_pair(graphid.tileid(), dep.second->lineid()));
           route_one_stops[route_one_stop] = tile_line_ids;
         } else {
-          route_one_stops[route_one_stop].emplace_back(tile_line_pair(graphid.tileid(), dep.second->lineid()));
+          route_one_stops[route_one_stop].emplace_back(tile_index_pair(graphid.tileid(), dep.second->lineid()));
         }
 
         // operators contain all of their route's tile_line pairs.
         const auto& op_one_stop = GetName(t->op_by_onestop_id_offset());
         stops = oper_one_stops.find(op_one_stop);
         if (stops == oper_one_stops.end()) {
-          std::list<tile_line_pair> tile_line_ids;
-          tile_line_ids.emplace_back(tile_line_pair(graphid.tileid(), dep.second->lineid()));
+          std::list<tile_index_pair> tile_line_ids;
+          tile_line_ids.emplace_back(tile_index_pair(graphid.tileid(), dep.second->lineid()));
           oper_one_stops[op_one_stop] = tile_line_ids;
         } else {
-          oper_one_stops[op_one_stop].emplace_back(tile_line_pair(graphid.tileid(), dep.second->lineid()));
+          oper_one_stops[op_one_stop].emplace_back(tile_index_pair(graphid.tileid(), dep.second->lineid()));
         }
       }
     }
@@ -579,14 +586,20 @@ std::unordered_map<uint32_t,TransitDeparture*> GraphTile::GetTransitDepartures()
   return deps;
 }
 
+// Get the stop onestops in this tile
+std::unordered_map<std::string, tile_index_pair>
+GraphTile::GetStopOneStops() const {
+  return stop_one_stops;
+}
+
 // Get the route onestops in this tile.
-std::unordered_map<std::string, std::list<tile_line_pair>>
+std::unordered_map<std::string, std::list<tile_index_pair>>
 GraphTile::GetRouteOneStops() const {
   return route_one_stops;
 }
 
 // Get the operator onestops in this tile.
-std::unordered_map<std::string, std::list<tile_line_pair>>
+std::unordered_map<std::string, std::list<tile_index_pair>>
 GraphTile::GetOperatorOneStops() const {
   return oper_one_stops;
 }
