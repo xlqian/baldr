@@ -65,6 +65,7 @@ nobase_include_HEADERS = \
 	valhalla/baldr/nodeinfo.h \
 	valhalla/baldr/location.h \
 	valhalla/baldr/pathlocation.h \
+	valhalla/baldr/shared_tiles.h \
 	valhalla/baldr/sign.h \
 	valhalla/baldr/signinfo.h \
 	valhalla/baldr/tilehierarchy.h \
@@ -101,6 +102,7 @@ libvalhalla_baldr_la_SOURCES = \
 	src/baldr/nodeinfo.cc \
 	src/baldr/location.cc \
 	src/baldr/pathlocation.cc \
+	src/baldr/shared_tiles.cc \
 	src/baldr/sign.cc \
 	src/baldr/signinfo.cc \
 	src/baldr/tilehierarchy.cc \

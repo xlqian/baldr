@@ -83,68 +83,10 @@ GraphTile::GraphTile(const TileHierarchy& hierarchy, const GraphId& graphid)
     file.read(graphtile_.get(), filesize);
     file.close();
 
-    // Set a pointer to the header (first structure in the binary data).
-    char* ptr = graphtile_.get();
-    header_ = reinterpret_cast<GraphTileHeader*>(ptr);
-    ptr += sizeof(GraphTileHeader);
+    // Set pointers to internal data structures
+    Initialize(graphtile_.get(), filesize);
 
-    // TODO check version
-
-    // Set a pointer to the node list
-    nodes_ = reinterpret_cast<NodeInfo*>(ptr);
-    ptr += header_->nodecount() * sizeof(NodeInfo);
-
-    // Set a pointer to the directed edge list
-    directededges_ = reinterpret_cast<DirectedEdge*>(ptr);
-    ptr += header_->directededgecount() * sizeof(DirectedEdge);
-
-    // Set a pointer access restriction list
-    access_restrictions_ = reinterpret_cast<AccessRestriction*>(ptr);
-    ptr += header_->access_restriction_count() * sizeof(AccessRestriction);
-
-    // Set a pointer to the transit departure list
-    departures_ = reinterpret_cast<TransitDeparture*>(ptr);
-    ptr += header_->departurecount() * sizeof(TransitDeparture);
-
-    // Set a pointer to the transit stop list
-    transit_stops_ = reinterpret_cast<TransitStop*>(ptr);
-    ptr += header_->stopcount() * sizeof(TransitStop);
-
-    // Set a pointer to the transit route list
-    transit_routes_ = reinterpret_cast<TransitRoute*>(ptr);
-    ptr += header_->routecount() * sizeof(TransitRoute);
-
-    // Set a pointer to the transit schedule list
-    transit_schedules_ = reinterpret_cast<TransitSchedule*>(ptr);
-    ptr += header_->schedulecount() * sizeof(TransitSchedule);
-
-/*
-LOG_INFO("Tile: " + std::to_string(graphid.tileid()) + "," + std::to_string(graphid.level()));
-LOG_INFO("Departures: " + std::to_string(header_->departurecount()) +
-         " Stops: " + std::to_string(header_->stopcount()) +
-         " Routes: " + std::to_string(header_->routecount()) +
-         " Transfers: " + std::to_string(header_->transfercount()) +
-         " Exceptions: " + std::to_string(header_->calendarcount()));
-    */
-
-    // Set a pointer to the sign list
-    signs_ = reinterpret_cast<Sign*>(ptr);
-    ptr += header_->signcount() * sizeof(Sign);
-
-    // Set a pointer to the admininstrative information list
-    admins_ = reinterpret_cast<Admin*>(ptr);
-    ptr += header_->admincount() * sizeof(Admin);
-
-    // Set a pointer to the edge bin list
-    edge_bins_ = reinterpret_cast<GraphId*>(ptr);
-
-    // Start of edge information and its size
-    edgeinfo_ = graphtile_.get() + header_->edgeinfo_offset();
-    edgeinfo_size_ = header_->textlist_offset() - header_->edgeinfo_offset();
-
-    // Start of text list and its size
-    textlist_ = graphtile_.get() + header_->textlist_offset();
-    textlist_size_ = filesize - header_->textlist_offset();
+    // TODO _ what do we do for mmap'd tiles???
 
     //if this tile is transit then we need to save off the pair<tileid,lineid> lookup via
     //onestop_ids.  This will be used for including or excluding transit lines for transit
@@ -183,16 +125,93 @@ LOG_INFO("Departures: " + std::to_string(header_->departurecount()) +
         }
       }
     }
-
-    // Set the size to indicate success
-    size_ = filesize;
   }
   else {
     LOG_DEBUG("Tile " + file_location + " was not found");
   }
 }
 
+GraphTile::GraphTile(const GraphId& graphid, SharedTiles& shared_tiles) {
+  tile_pair tile_info = shared_tiles.GetTile(graphid);
+  if (tile_info.first == nullptr) {
+    // Tile does not exist
+    size_ = 0;
+  } else {
+    // Initialize the internal tile data structures using a pointer to the
+    // tile and the tile size
+    Initialize(tile_info.first, tile_info.second);
+  }
+}
+
 GraphTile::~GraphTile() {
+}
+
+// Set pointers to internal tile data structures
+void GraphTile::Initialize(char* tile_ptr, const size_t tile_size) {
+  char* ptr = tile_ptr;
+  header_ = reinterpret_cast<GraphTileHeader*>(ptr);
+  ptr += sizeof(GraphTileHeader);
+
+  // TODO check version
+
+  // Set a pointer to the node list
+  nodes_ = reinterpret_cast<NodeInfo*>(ptr);
+  ptr += header_->nodecount() * sizeof(NodeInfo);
+
+  // Set a pointer to the directed edge list
+  directededges_ = reinterpret_cast<DirectedEdge*>(ptr);
+  ptr += header_->directededgecount() * sizeof(DirectedEdge);
+
+  // Set a pointer access restriction list
+  access_restrictions_ = reinterpret_cast<AccessRestriction*>(ptr);
+  ptr += header_->access_restriction_count() * sizeof(AccessRestriction);
+
+  // Set a pointer to the transit departure list
+  departures_ = reinterpret_cast<TransitDeparture*>(ptr);
+  ptr += header_->departurecount() * sizeof(TransitDeparture);
+
+  // Set a pointer to the transit stop list
+  transit_stops_ = reinterpret_cast<TransitStop*>(ptr);
+  ptr += header_->stopcount() * sizeof(TransitStop);
+
+  // Set a pointer to the transit route list
+  transit_routes_ = reinterpret_cast<TransitRoute*>(ptr);
+  ptr += header_->routecount() * sizeof(TransitRoute);
+
+  // Set a pointer to the transit schedule list
+  transit_schedules_ = reinterpret_cast<TransitSchedule*>(ptr);
+  ptr += header_->schedulecount() * sizeof(TransitSchedule);
+
+/*
+LOG_INFO("Tile: " + std::to_string(graphid.tileid()) + "," + std::to_string(graphid.level()));
+LOG_INFO("Departures: " + std::to_string(header_->departurecount()) +
+       " Stops: " + std::to_string(header_->stopcount()) +
+       " Routes: " + std::to_string(header_->routecount()) +
+       " Transfers: " + std::to_string(header_->transfercount()) +
+       " Exceptions: " + std::to_string(header_->calendarcount()));
+  */
+
+  // Set a pointer to the sign list
+  signs_ = reinterpret_cast<Sign*>(ptr);
+  ptr += header_->signcount() * sizeof(Sign);
+
+  // Set a pointer to the admininstrative information list
+  admins_ = reinterpret_cast<Admin*>(ptr);
+  ptr += header_->admincount() * sizeof(Admin);
+
+  // Set a pointer to the edge bin list
+  edge_bins_ = reinterpret_cast<GraphId*>(ptr);
+
+  // Start of edge information and its size
+  edgeinfo_ = tile_ptr + header_->edgeinfo_offset();
+  edgeinfo_size_ = header_->textlist_offset() - header_->edgeinfo_offset();
+
+  // Start of text list and its size
+  textlist_ = tile_ptr + header_->textlist_offset();
+  textlist_size_ = tile_size - header_->textlist_offset();
+
+  // Set the size to indicate success
+  size_ = tile_size;
 }
 
 std::string GraphTile::FileSuffix(const GraphId& graphid, const TileHierarchy& hierarchy) {
