@@ -146,6 +146,44 @@ LOG_INFO("Departures: " + std::to_string(header_->departurecount()) +
     textlist_ = graphtile_.get() + header_->textlist_offset();
     textlist_size_ = filesize - header_->textlist_offset();
 
+    //if this tile is transit then we need to save off the pair<tileid,lineid> lookup via
+    //onestop_ids.  This will be used for including or excluding transit lines for transit
+    //routes.  We save 2 maps because operators contain all of their route's tile_line pairs
+    //and it is used to include or exclude the operator as a whole.
+    if (graphid.level() == 3) {
+
+      stop_one_stops.reserve(header_->stopcount());
+      for (uint32_t i = 0; i < header_->stopcount(); i++) {
+        const auto& stop = GetName(transit_stops_[i].one_stop_offset());
+        stop_one_stops[stop] = tile_index_pair(graphid.tileid(),i);
+      }
+
+      auto deps = GetTransitDepartures();
+      for(auto const& dep: deps) {
+        const auto* t = GetTransitRoute(dep.second->routeid());
+        const auto& route_one_stop = GetName(t->one_stop_offset());
+        auto stops = route_one_stops.find(route_one_stop);
+        if (stops == route_one_stops.end()) {
+          std::list<tile_index_pair> tile_line_ids;
+          tile_line_ids.emplace_back(tile_index_pair(graphid.tileid(), dep.second->lineid()));
+          route_one_stops[route_one_stop] = tile_line_ids;
+        } else {
+          route_one_stops[route_one_stop].emplace_back(tile_index_pair(graphid.tileid(), dep.second->lineid()));
+        }
+
+        // operators contain all of their route's tile_line pairs.
+        const auto& op_one_stop = GetName(t->op_by_onestop_id_offset());
+        stops = oper_one_stops.find(op_one_stop);
+        if (stops == oper_one_stops.end()) {
+          std::list<tile_index_pair> tile_line_ids;
+          tile_line_ids.emplace_back(tile_index_pair(graphid.tileid(), dep.second->lineid()));
+          oper_one_stops[op_one_stop] = tile_line_ids;
+        } else {
+          oper_one_stops[op_one_stop].emplace_back(tile_index_pair(graphid.tileid(), dep.second->lineid()));
+        }
+      }
+    }
+
     // Set the size to indicate success
     size_ = filesize;
   }
@@ -411,7 +449,7 @@ std::vector<SignInfo> GraphTile::GetSigns(const uint32_t idx) const {
   return signs;
 }
 
-// Get the next departure given the directed edge Id and the current
+// Get the next departure given the directed line Id and the current
 // time (seconds from midnight).
 const TransitDeparture* GraphTile::GetNextDeparture(const uint32_t lineid,
                  const uint32_t current_time, const uint32_t day,
@@ -534,6 +572,36 @@ const TransitDeparture* GraphTile::GetTransitDeparture(const uint32_t lineid,
   LOG_INFO("No departures found for lineid = " + std::to_string(lineid) +
            " and tripid = " + std::to_string(tripid));
   return nullptr;
+}
+
+// Get a map of departures based on lineid.  No dups exist in the map.
+std::unordered_map<uint32_t,TransitDeparture*> GraphTile::GetTransitDepartures() const {
+
+  std::unordered_map<uint32_t,TransitDeparture*> deps;
+  deps.reserve(header_->departurecount());
+
+  for (uint32_t i = 0; i < header_->departurecount(); i++)
+    deps.insert({departures_[i].lineid(),&departures_[i]});
+
+  return deps;
+}
+
+// Get the stop onestops in this tile
+std::unordered_map<std::string, tile_index_pair>
+GraphTile::GetStopOneStops() const {
+  return stop_one_stops;
+}
+
+// Get the route onestops in this tile.
+std::unordered_map<std::string, std::list<tile_index_pair>>
+GraphTile::GetRouteOneStops() const {
+  return route_one_stops;
+}
+
+// Get the operator onestops in this tile.
+std::unordered_map<std::string, std::list<tile_index_pair>>
+GraphTile::GetOperatorOneStops() const {
+  return oper_one_stops;
 }
 
 // Get the transit stop given its index within the tile.
