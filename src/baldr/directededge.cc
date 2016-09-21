@@ -26,6 +26,7 @@ json::MapPtr access_json(uint32_t access) {
     {"pedestrian", static_cast<bool>(access & kPedestrianAccess)},
     {"taxi", static_cast<bool>(access & kTaxiAccess)},
     {"truck", static_cast<bool>(access & kTruckAccess)},
+    {"wheelchair", static_cast<bool>(access && kWheelchairAccess)}
   });
 }
 
@@ -412,6 +413,13 @@ uint32_t DirectedEdge::forwardaccess() const {
 
 // Set the access modes in the forward direction (bit field).
 void DirectedEdge::set_forwardaccess(const uint32_t modes) {
+  if (modes > kAllAccess) {
+    LOG_ERROR("DirectedEdge: forward access exceeds maximum allowed: " +
+              std::to_string(modes));
+    forwardaccess_ = (modes & kAllAccess);
+  } else {
+    forwardaccess_ = modes;
+  }
   forwardaccess_ = modes;
 }
 
@@ -429,7 +437,13 @@ uint32_t DirectedEdge::reverseaccess() const {
 
 // Set the access modes in the reverse direction (bit field).
 void DirectedEdge::set_reverseaccess(const uint32_t modes) {
-  reverseaccess_ = modes;
+  if (modes > kAllAccess) {
+    LOG_ERROR("DirectedEdge: reverse access exceeds maximum allowed: " +
+              std::to_string(modes));
+    reverseaccess_ = (modes & kAllAccess);
+  } else {
+    reverseaccess_ = modes;
+  }
 }
 
 // -------------------------------- speed -------------------------- //
