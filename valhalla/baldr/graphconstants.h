@@ -215,6 +215,7 @@ enum class Use : uint8_t {
   kDriveThru = 8,         // Commercial drive-thru (banks/fast-food)
   kCuldesac = 9,          // Cul-de-sac (edge that forms a loop and is only
                           // connected at one node to another edge.
+  kSidewalk = 10,
 
   // Bicycle specific uses
   kCycleway = 20,          // Dedicated bicycle path
