@@ -10,9 +10,6 @@ constexpr uint32_t kInvalidId = std::numeric_limits<uint32_t>::max();
 // Maximum number of tiles supported.
 constexpr uint32_t kMaxGraphTileId = 16777215;
 
-// Maximum of 8 (0-7) graph hierarchies are supported.
-constexpr uint32_t kMaxGraphHierarchy = 7;
-
 // Maximum unique identifier within a graph hierarchy.
 constexpr uint64_t kMaxGraphId = 68719476735;
 }

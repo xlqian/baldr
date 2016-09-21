@@ -14,6 +14,7 @@
 #include <valhalla/baldr/edgeinfo.h>
 #include <valhalla/baldr/admininfo.h>
 #include <valhalla/baldr/tilehierarchy.h>
+#include <valhalla/baldr/shared_tiles.h>
 #include <valhalla/midgard/util.h>
 
 #include <boost/shared_array.hpp>
@@ -43,6 +44,11 @@ class GraphTile {
    * @param  graphid    GraphId (tileid and level)
    */
   GraphTile(const TileHierarchy& hierarchy, const GraphId& graphid);
+
+  /**
+   * Constructor given the graph Id ... used for mmap
+   */
+  GraphTile(const GraphId& graphid, SharedTiles& shared_tiles);
 
   /**
    * Destructor
@@ -355,6 +361,12 @@ class GraphTile {
   // Map of operator one stops in this tile.
   std::unordered_map<std::string, std::list<tile_index_pair>> oper_one_stops;
 
+  /**
+   * Set pointers to internal tile data structures.
+   * @param  tile_ptr   Pointer to the start of the tile.
+   * @param  tile_size  Tile size in bytes.
+   */
+  void Initialize(char* tile_ptr, const size_t tile_size);
 };
 
 }

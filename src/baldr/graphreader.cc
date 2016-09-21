@@ -18,12 +18,21 @@ namespace {
 namespace valhalla {
 namespace baldr {
 
-//this constructor delegates to the other
-GraphReader::GraphReader(const boost::property_tree::ptree& pt):tile_hierarchy_(pt.get<std::string>("tile_dir")), cache_size_(0) {
+// Constructor using separate tile files
+GraphReader::GraphReader(const boost::property_tree::ptree& pt)
+    : tile_hierarchy_(pt.get<std::string>("tile_dir")),
+      cache_size_(0),
+      shared_tiles_(SharedTiles::get_shared_tiles(pt)) {
   max_cache_size_ = pt.get<size_t>("max_cache_size", DEFAULT_MAX_CACHE_SIZE);
 
-  //assume avg of 10 megs per tile
-  cache_.reserve(max_cache_size_/AVERAGE_TILE_SIZE);
+  // Reserve cache (based on whether using individual tile files or shared,
+  // mmap'd file
+  if (shared_tiles_.get_tile_ptr() != nullptr) {
+    cache_.reserve(max_cache_size_/1000);
+  } else {
+    // Assume avg of 10 megs per tile
+    cache_.reserve(max_cache_size_/AVERAGE_TILE_SIZE);
+  }
 }
 
 // Method to test if tile exists
@@ -37,24 +46,41 @@ bool GraphReader::DoesTileExist(const TileHierarchy& tile_hierarchy, const Graph
   return stat(file_location.c_str(), &buffer) == 0;
 }
 
-// Get a pointer to a graph tile object given a GraphId.
+// Get a pointer to a graph tile object given a GraphId. Return nullptr
+// if the tile is not found/empty
 const GraphTile* GraphReader::GetGraphTile(const GraphId& graphid) {
   //TODO: clear the cache automatically once we become overcommitted by a certain amount
 
   // Check if the level/tileid combination is in the cache
   auto cached = cache_.find(graphid.Tile_Base());
-  if(cached != cache_.end())
+  if(cached != cache_.end()) {
     return &cached->second;
+  }
 
-  // It wasn't in cache so create a GraphTile object. This reads the tile from disk
-  GraphTile tile(tile_hierarchy_, graphid);
-  // Need to check that the tile could be loaded, if it has no size it wasn't loaded
-  if(tile.size() == 0)
-    return nullptr;
-  // Keep a copy in the cache and return it
-  cache_size_ += tile.size();
-  auto inserted = cache_.emplace(graphid.Tile_Base(), std::move(tile));
-  return &inserted.first->second;
+  // It wasn't in cache so create a GraphTile object.
+  if (shared_tiles_.get_tile_ptr() != nullptr) {
+    // This initializes the tile from mmap
+    GraphTile tile(graphid, shared_tiles_);
+    if (tile.size() == 0) {
+      return nullptr;
+    }
+
+    // Keep a copy in the cache and return it
+    cache_size_ += 1000; // tile.size();  // TODO what size??
+    auto inserted = cache_.emplace(graphid.Tile_Base(), std::move(tile));
+    return &inserted.first->second;
+  } else {
+    // This reads the tile from disk
+    GraphTile tile(tile_hierarchy_, graphid);
+    if (tile.size() == 0) {
+      return nullptr;
+    }
+
+    // Keep a copy in the cache and return it
+    cache_size_ += tile.size();
+    auto inserted = cache_.emplace(graphid.Tile_Base(), std::move(tile));
+    return &inserted.first->second;
+  }
 }
 
 const GraphTile* GraphReader::GetGraphTile(const PointLL& pointll, const uint8_t level){
@@ -69,17 +95,13 @@ const TileHierarchy& GraphReader::GetTileHierarchy() const {
   return tile_hierarchy_;
 }
 
-/**
- * Clears the cache
- */
+// Clears the cache
 void GraphReader::Clear() {
   cache_size_ = 0;
   cache_.clear();
 }
 
-/** Returns true if the cache is over committed with respect to the limit
- * @return  true
- */
+// Returns true if the cache is over committed with respect to the limit
 bool GraphReader::OverCommitted() const {
   return max_cache_size_ < cache_size_;
 }
@@ -111,6 +133,11 @@ GraphId GraphReader::GetOpposingEdgeId(const GraphId& edgeid, const GraphTile*& 
   if (tile != nullptr) {
     id.fields.id = tile->node(id)->edge_index() + directededge->opp_index();
     return id;
+  } else {
+    LOG_ERROR("Invalid tile for opposing edge: tile ID= " + std::to_string(id.tileid()) + " level= " + std::to_string(id.level()));
+    if (directededge->trans_up() || directededge->trans_down()) {
+      LOG_ERROR("transition edge being checked?");
+    }
   }
   return {};
 }
