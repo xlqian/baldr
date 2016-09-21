@@ -14,15 +14,15 @@ const uint32_t ContinuityLookup[] = {0, 7, 13, 18, 22, 25, 27};
 
 json::MapPtr access_json(uint16_t access) {
   return json::map({
-    {"bicycle", static_cast<bool>(access && kBicycleAccess)},
-    {"bus", static_cast<bool>(access && kBusAccess)},
-    {"car", static_cast<bool>(access && kAutoAccess)},
-    {"emergency", static_cast<bool>(access && kEmergencyAccess)},
-    {"HOV", static_cast<bool>(access && kHOVAccess)},
-    {"pedestrian", static_cast<bool>(access && kPedestrianAccess)},
-    {"taxi", static_cast<bool>(access && kTaxiAccess)},
-    {"truck", static_cast<bool>(access && kTruckAccess)},
-    {"wheelchair", static_cast<bool>(access && kWheelchairAccess)}
+    {"bicycle", static_cast<bool>(access & kBicycleAccess)},
+    {"bus", static_cast<bool>(access & kBusAccess)},
+    {"car", static_cast<bool>(access & kAutoAccess)},
+    {"emergency", static_cast<bool>(access & kEmergencyAccess)},
+    {"HOV", static_cast<bool>(access & kHOVAccess)},
+    {"pedestrian", static_cast<bool>(access & kPedestrianAccess)},
+    {"taxi", static_cast<bool>(access & kTaxiAccess)},
+    {"truck", static_cast<bool>(access & kTruckAccess)},
+    {"wheelchair", static_cast<bool>(access & kWheelchairAccess)}
   });
 }
 
