@@ -23,8 +23,10 @@ namespace baldr {
 
 struct GraphReader::tile_extract_t : public midgard::tar {
   tile_extract_t(const boost::property_tree::ptree& pt):tar(pt.get<std::string>("tile_extract","")) {
-    if(mm.get() == nullptr && pt.get_optional<std::string>("tile_extract"))
-      LOG_INFO("Could not load tile extract");
+    if(mm.get() == nullptr && pt.get_optional<std::string>("tile_extract")) {
+      LOG_WARN("Could not load tile extract");
+      return;
+    }
     LOG_INFO("Tile extract loaded");
     for(auto& c : contents) {
       try {
