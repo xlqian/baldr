@@ -23,17 +23,22 @@ namespace baldr {
 
 struct GraphReader::tile_extract_t : public midgard::tar {
   tile_extract_t(const boost::property_tree::ptree& pt):tar(pt.get<std::string>("tile_extract","")) {
-    if(mm.get() == nullptr && pt.get_optional<std::string>("tile_extract")) {
-      LOG_WARN("Could not load tile extract");
-      return;
-    }
-    LOG_INFO("Tile extract loaded");
-    for(auto& c : contents) {
-      try {
-        auto id = GraphTile::GetTileId(c.first, "");
-        tiles[id] = std::make_pair(const_cast<char*>(c.second.first), c.second.second);
+    //if you really meant to load it
+    if(pt.get_optional<std::string>("tile_extract")) {
+      //couldn't load it
+      if(mm.get() == nullptr) {
+        LOG_WARN("Could not load tile extract");
+        return;
       }
-      catch(...){}
+      //loaded ok
+      LOG_INFO("Tile extract loaded");
+      for(auto& c : contents) {
+        try {
+          auto id = GraphTile::GetTileId(c.first, "");
+          tiles[id] = std::make_pair(const_cast<char*>(c.second.first), c.second.second);
+        }
+        catch(...){}
+      }
     }
   }
   // TODO: dont remove constness, and actually make graphtile read only?
