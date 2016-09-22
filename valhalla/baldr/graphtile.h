@@ -363,10 +363,14 @@ class GraphTile {
 
   /**
    * Set pointers to internal tile data structures.
+   * @param  graphid    Graph Id for the tile.
    * @param  tile_ptr   Pointer to the start of the tile.
    * @param  tile_size  Tile size in bytes.
    */
-  void Initialize(char* tile_ptr, const size_t tile_size);
+  void Initialize(const GraphId& graphid, char* tile_ptr,
+                  const size_t tile_size);
+
+  void AssociateOneStopIds(const GraphId& graphid);
 };
 
 }
