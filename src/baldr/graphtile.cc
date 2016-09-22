@@ -84,47 +84,7 @@ GraphTile::GraphTile(const TileHierarchy& hierarchy, const GraphId& graphid)
     file.close();
 
     // Set pointers to internal data structures
-    Initialize(graphtile_.get(), filesize);
-
-    // TODO _ what do we do for mmap'd tiles???
-
-    //if this tile is transit then we need to save off the pair<tileid,lineid> lookup via
-    //onestop_ids.  This will be used for including or excluding transit lines for transit
-    //routes.  We save 2 maps because operators contain all of their route's tile_line pairs
-    //and it is used to include or exclude the operator as a whole.
-    if (graphid.level() == 3) {
-
-      stop_one_stops.reserve(header_->stopcount());
-      for (uint32_t i = 0; i < header_->stopcount(); i++) {
-        const auto& stop = GetName(transit_stops_[i].one_stop_offset());
-        stop_one_stops[stop] = tile_index_pair(graphid.tileid(),i);
-      }
-
-      auto deps = GetTransitDepartures();
-      for(auto const& dep: deps) {
-        const auto* t = GetTransitRoute(dep.second->routeid());
-        const auto& route_one_stop = GetName(t->one_stop_offset());
-        auto stops = route_one_stops.find(route_one_stop);
-        if (stops == route_one_stops.end()) {
-          std::list<tile_index_pair> tile_line_ids;
-          tile_line_ids.emplace_back(tile_index_pair(graphid.tileid(), dep.second->lineid()));
-          route_one_stops[route_one_stop] = tile_line_ids;
-        } else {
-          route_one_stops[route_one_stop].emplace_back(tile_index_pair(graphid.tileid(), dep.second->lineid()));
-        }
-
-        // operators contain all of their route's tile_line pairs.
-        const auto& op_one_stop = GetName(t->op_by_onestop_id_offset());
-        stops = oper_one_stops.find(op_one_stop);
-        if (stops == oper_one_stops.end()) {
-          std::list<tile_index_pair> tile_line_ids;
-          tile_line_ids.emplace_back(tile_index_pair(graphid.tileid(), dep.second->lineid()));
-          oper_one_stops[op_one_stop] = tile_line_ids;
-        } else {
-          oper_one_stops[op_one_stop].emplace_back(tile_index_pair(graphid.tileid(), dep.second->lineid()));
-        }
-      }
-    }
+    Initialize(graphid, graphtile_.get(), filesize);
   }
   else {
     LOG_DEBUG("Tile " + file_location + " was not found");
@@ -134,14 +94,15 @@ GraphTile::GraphTile(const TileHierarchy& hierarchy, const GraphId& graphid)
 GraphTile::GraphTile(const GraphId& graphid, char* ptr, size_t size) {
   // Initialize the internal tile data structures using a pointer to the
   // tile and the tile size
-  Initialize(ptr, size);
+  Initialize(graphid, ptr, size);
 }
 
 GraphTile::~GraphTile() {
 }
 
 // Set pointers to internal tile data structures
-void GraphTile::Initialize(char* tile_ptr, const size_t tile_size) {
+void GraphTile::Initialize(const GraphId& graphid, char* tile_ptr,
+                           const size_t tile_size) {
   char* ptr = tile_ptr;
   header_ = reinterpret_cast<GraphTileHeader*>(ptr);
   ptr += sizeof(GraphTileHeader);
@@ -176,15 +137,6 @@ void GraphTile::Initialize(char* tile_ptr, const size_t tile_size) {
   transit_schedules_ = reinterpret_cast<TransitSchedule*>(ptr);
   ptr += header_->schedulecount() * sizeof(TransitSchedule);
 
-/*
-LOG_INFO("Tile: " + std::to_string(graphid.tileid()) + "," + std::to_string(graphid.level()));
-LOG_INFO("Departures: " + std::to_string(header_->departurecount()) +
-       " Stops: " + std::to_string(header_->stopcount()) +
-       " Routes: " + std::to_string(header_->routecount()) +
-       " Transfers: " + std::to_string(header_->transfercount()) +
-       " Exceptions: " + std::to_string(header_->calendarcount()));
-  */
-
   // Set a pointer to the sign list
   signs_ = reinterpret_cast<Sign*>(ptr);
   ptr += header_->signcount() * sizeof(Sign);
@@ -206,6 +158,51 @@ LOG_INFO("Departures: " + std::to_string(header_->departurecount()) +
 
   // Set the size to indicate success
   size_ = tile_size;
+
+  // Associate one stop Ids for transit tiles
+  if (graphid.level() == 3) {
+    AssociateOneStopIds(graphid);
+  }
+}
+
+// For transit tiles we need to save off the pair<tileid,lineid> lookup via
+// onestop_ids.  This will be used for including or excluding transit lines
+// for transit routes.  We save 2 maps because operators contain all of their
+// route's tile_line pairs and it is used to include or exclude the operator
+// as a whole. Also associates stops.
+void GraphTile::AssociateOneStopIds(const GraphId& graphid) {
+  // Associate stop Ids
+  stop_one_stops.reserve(header_->stopcount());
+  for (uint32_t i = 0; i < header_->stopcount(); i++) {
+    const auto& stop = GetName(transit_stops_[i].one_stop_offset());
+    stop_one_stops[stop] = tile_index_pair(graphid.tileid(), i);
+  }
+
+  // Associate route and operator Ids
+  auto deps = GetTransitDepartures();
+  for (auto const& dep: deps) {
+    const auto* t = GetTransitRoute(dep.second->routeid());
+    const auto& route_one_stop = GetName(t->one_stop_offset());
+    auto stops = route_one_stops.find(route_one_stop);
+    if (stops == route_one_stops.end()) {
+      std::list<tile_index_pair> tile_line_ids;
+      tile_line_ids.emplace_back(tile_index_pair(graphid.tileid(), dep.second->lineid()));
+      route_one_stops[route_one_stop] = tile_line_ids;
+    } else {
+      route_one_stops[route_one_stop].emplace_back(tile_index_pair(graphid.tileid(), dep.second->lineid()));
+    }
+
+    // operators contain all of their route's tile_line pairs.
+    const auto& op_one_stop = GetName(t->op_by_onestop_id_offset());
+    stops = oper_one_stops.find(op_one_stop);
+    if (stops == oper_one_stops.end()) {
+      std::list<tile_index_pair> tile_line_ids;
+      tile_line_ids.emplace_back(tile_index_pair(graphid.tileid(), dep.second->lineid()));
+      oper_one_stops[op_one_stop] = tile_line_ids;
+    } else {
+      oper_one_stops[op_one_stop].emplace_back(tile_index_pair(graphid.tileid(), dep.second->lineid()));
+    }
+  }
 }
 
 std::string GraphTile::FileSuffix(const GraphId& graphid, const TileHierarchy& hierarchy) {
