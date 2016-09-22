@@ -220,6 +220,8 @@ enum class Use : uint8_t {
   kCycleway = 20,          // Dedicated bicycle path
   kMountainBike = 21,      // Mountain bike trail
 
+  kSidewalk = 24,
+
   // Pedestrian specific uses
   kFootway = 25,
   kSteps = 26,             // Stairs
