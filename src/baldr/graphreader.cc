@@ -72,14 +72,22 @@ GraphReader::GraphReader(const boost::property_tree::ptree& pt)
 
 // Method to test if tile exists
 bool GraphReader::DoesTileExist(const GraphId& graphid) const {
-  return DoesTileExist(tile_hierarchy_, graphid);
+  if(tile_extract_->tiles.find(graphid) != tile_extract_->tiles.cend())
+    return true;
+  std::string file_location = tile_hierarchy_.tile_dir() + "/" +
+    GraphTile::FileSuffix(graphid.Tile_Base(), tile_hierarchy_);
+  struct stat buffer;
+  return stat(file_location.c_str(), &buffer) == 0;
 }
-bool GraphReader::DoesTileExist(const TileHierarchy& tile_hierarchy, const GraphId& graphid) {
+bool GraphReader::DoesTileExist(const boost::property_tree::ptree& pt, const GraphId& graphid) {
+  auto extract = get_extract_instance(pt);
+  if(extract->tiles.find(graphid) != extract->tiles.cend())
+    return true;
+  TileHierarchy tile_hierarchy(pt.get<std::string>("tile_dir"));
   std::string file_location = tile_hierarchy.tile_dir() + "/" +
     GraphTile::FileSuffix(graphid.Tile_Base(), tile_hierarchy);
   struct stat buffer;
-  return tile_extract_->tiles.find(graphid) != tile_extract_->tiles.cend() ||
-    stat(file_location.c_str(), &buffer) == 0;
+  return stat(file_location.c_str(), &buffer) == 0;
 }
 
 // Get a pointer to a graph tile object given a GraphId. Return nullptr
