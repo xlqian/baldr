@@ -19,20 +19,6 @@ constexpr uint16_t kHOVAccess        = 128;
 constexpr uint16_t kWheelchairAccess = 256;
 constexpr uint16_t kAllAccess        = 4095;
 
-// TODO: review and update as needed
-enum class VehicleType {
-  kCar = 0,
-  kMotorcycle = 1,
-  kFourWheelDrive = 2
-};
-
-// TODO: review and update as needed
-enum class PedestrianType {
-  kFoot = 0,
-  kWheelChair = 1,
-  kSegway = 2
-};
-
 // Maximum number of transit records per tile
 constexpr uint32_t kMaxTransitDepartures    = 16777215;
 constexpr uint32_t kMaxTransitStops         = 65535;
