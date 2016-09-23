@@ -1,7 +1,7 @@
 ACLOCAL_AMFLAGS = -I m4
 AM_LDFLAGS = @BOOST_LDFLAGS@ @COVERAGE_LDFLAGS@
-AM_CPPFLAGS = -Ivalhalla @BOOST_CPPFLAGS@
-AM_CXXFLAGS = -Ivalhalla @COVERAGE_CXXFLAGS@
+AM_CPPFLAGS = -I@abs_srcdir@/valhalla @BOOST_CPPFLAGS@
+AM_CXXFLAGS = -I@abs_srcdir@/valhalla @COVERAGE_CXXFLAGS@ -Igenfiles
 LIBTOOL_DEPS = @LIBTOOL_DEPS@
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status libtool
@@ -29,20 +29,24 @@ coverage.info:
 coverage/index.html: coverage.info
 	$(GENHTML) --prefix $(top_builddir) --output-directory $(@D) --title "Test Coverage" --legend --show-details $<
 
-
 .PHONY: clean-gcno
 clean-gcno:
 	-find -name '*.gcno' -exec rm -rf {} \;
 
-clean-local: clean-coverage clean-gcno
+clean-local: clean-coverage clean-gcno clean-genfiles
+else
+clean-local: clean-genfiles
 endif
 
+clean-genfiles:
+	-rm -rf genfiles
+
 #timezone info from boost
-src/baldr/date_time_zonespec.h:
-	-xxd -i -s +$$(head -n 1 date_time/zonespec.csv | wc -c | xargs) date_time/zonespec.csv > src/baldr/date_time_zonespec.h
-BUILT_SOURCES = src/baldr/date_time_zonespec.h
-nodist_libvalhalla_baldr_la_SOURCES = src/baldr/date_time_zonespec.h
-CLEANFILES = src/baldr/date_time_zonespec.h
+genfiles/date_time_zonespec.h:
+	-mkdir -p genfiles
+	-cd  @abs_srcdir@ && xxd -i -s +$$(head -n 1 date_time/zonespec.csv | wc -c | xargs) date_time/zonespec.csv > @abs_builddir@/genfiles/date_time_zonespec.h
+BUILT_SOURCES = genfiles/date_time_zonespec.h
+nodist_libvalhalla_baldr_la_SOURCES = genfiles/date_time_zonespec.h
 
 # libvalhalla-baldr compilation etc
 lib_LTLIBRARIES = libvalhalla_baldr.la
