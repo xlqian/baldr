@@ -196,6 +196,8 @@ class GraphTile {
    * @param   dow               Day of week (see graphconstants.h)
    * @param   date_before_tile  Is the date that was inputed before
    *                            the tile creation date?
+   * @param   wheelchair        Only find departures with wheelchair access if true
+   * @param   bicyle            Only find departures with bicycle access if true
    * @return  Returns a pointer to the transit departure information.
    *          Returns nullptr if no departures are found.
    */
@@ -203,7 +205,9 @@ class GraphTile {
                                            const uint32_t current_time,
                                            const uint32_t day,
                                            const uint32_t dow,
-                                           bool  date_before_tile) const;
+                                           bool  date_before_tile,
+                                           bool wheelchair,
+                                           bool bicycle) const;
 
   /**
    * Get the departure given the directed edge Id and tripid
@@ -363,10 +367,14 @@ class GraphTile {
 
   /**
    * Set pointers to internal tile data structures.
+   * @param  graphid    Graph Id for the tile.
    * @param  tile_ptr   Pointer to the start of the tile.
    * @param  tile_size  Tile size in bytes.
    */
-  void Initialize(char* tile_ptr, const size_t tile_size);
+  void Initialize(const GraphId& graphid, char* tile_ptr,
+                  const size_t tile_size);
+
+  void AssociateOneStopIds(const GraphId& graphid);
 };
 
 }
