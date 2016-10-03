@@ -131,7 +131,7 @@ namespace baldr {
     {181,"No suitable edges near location"},
     {182,"No data found for location"},
 
-    {199,"Unknown"},
+    {199,"Unknown:"},
 
     // odin project 2xx
     {200,"Failed to parse intermediate request format"},
@@ -149,7 +149,7 @@ namespace baldr {
     {231,"Invalid TripDirections_Maneuver_Type in method FormRelativeTwoDirection"},
     {232,"Invalid TripDirections_Maneuver_Type in method FormRelativeThreeDirection"},
 
-    {299,"Unknown"},
+    {299,"Unknown:"},
 
     // skadi project 3xx
     {300,"Failed to parse json request"},
@@ -162,7 +162,7 @@ namespace baldr {
     {313,"'resample_distance' must be >= "},
     {314,"Too many shape points"},
 
-    {399,"Unknown"},
+    {399,"Unknown:"},
 
     // thor project 4xx
     {400,"Unknown action"},
@@ -184,13 +184,13 @@ namespace baldr {
     {441,"Location is unreachable"},
     {442,"No path could be found for input"},
 
-    {499,"Unknown"},
+    {499,"Unknown:"},
 
     // tyr project 5xx
     {500,"Failed to parse intermediate request format"},
     {501,"Failed to parse TripDirections"},
 
-    {599,"Unknown"}
+    {599,"Unknown:"}
   };
 
   struct valhalla_exception_t: public std::runtime_error {
