@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include <valhalla/midgard/pointll.h>
+#include <valhalla/midgard/shape_decoder.h>
 #include <valhalla/midgard/util.h>
 #include <valhalla/baldr/graphid.h>
 #include <valhalla/baldr/json.h>
@@ -78,6 +79,10 @@ class EdgeInfo {
    *          shape of the edge.
    */
   const std::vector<PointLL>& shape() const;
+
+  midgard::Shape7Decoder<PointLL> lazy_shape() const {
+    return midgard::Shape7Decoder<PointLL>(encoded_shape_, item_->encoded_shape_size);
+  }
 
   /**
    * Returns the encoded shape string.

@@ -1,5 +1,7 @@
 #include "baldr/edgeinfo.h"
 
+#include <valhalla/midgard/encoded.h>
+
 using namespace valhalla::baldr;
 
 namespace {
