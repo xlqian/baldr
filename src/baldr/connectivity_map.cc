@@ -268,19 +268,21 @@ namespace valhalla {
       //bail if we dont have the level
       auto bbox = tile_hierarchy.levels().find(
         hierarchy_level == transit_level ? transit_level - 1 : hierarchy_level);
-      auto level = colors.find(hierarchy_level);
-      if(bbox == tile_hierarchy.levels().cend() || level == colors.cend())
+      if(bbox == tile_hierarchy.levels().cend())
         throw std::runtime_error("hierarchy level not found");
 
       //make a region map (inverse mapping of color to lists of tiles)
       //could cache this but shouldnt need to call it much
       std::unordered_map<size_t, std::unordered_set<uint32_t> > regions;
-      for(const auto& tile : level->second) {
-        auto region = regions.find(tile.second);
-        if(region == regions.end())
-          regions.emplace(tile.second, std::unordered_set<uint32_t>{tile.first});
-        else
-          region->second.emplace(tile.first);
+      auto level = colors.find(hierarchy_level);
+      if(level != colors.cend()) {
+        for(const auto& tile : level->second) {
+          auto region = regions.find(tile.second);
+          if(region == regions.end())
+            regions.emplace(tile.second, std::unordered_set<uint32_t>{tile.first});
+          else
+            region->second.emplace(tile.first);
+        }
       }
 
       //record the arity of each region so we can put the biggest ones first
@@ -301,21 +303,19 @@ namespace valhalla {
     }
 
     std::vector<size_t> connectivity_map_t::to_image(const uint32_t hierarchy_level) const {
-      auto level = colors.find(hierarchy_level);
-      if (level == colors.cend()) {
-        throw std::runtime_error("No connectivity map for level");
-      }
-
       uint32_t tile_level = (hierarchy_level == transit_level) ? transit_level - 1 : hierarchy_level;
       auto bbox = tile_hierarchy.levels().find(tile_level);
       if (bbox == tile_hierarchy.levels().cend())
         throw std::runtime_error("hierarchy level not found");
 
       std::vector<size_t> tiles(bbox->second.tiles.nrows() * bbox->second.tiles.ncolumns(), static_cast<uint32_t>(0));
-      for(size_t i = 0; i < tiles.size(); ++i) {
-        const auto color = level->second.find(static_cast<uint32_t>(i));
-        if(color != level->second.cend())
-          tiles[i] = color->second;
+      auto level = colors.find(hierarchy_level);
+      if (level != colors.cend()) {
+        for(size_t i = 0; i < tiles.size(); ++i) {
+          const auto color = level->second.find(static_cast<uint32_t>(i));
+          if(color != level->second.cend())
+            tiles[i] = color->second;
+        }
       }
 
       return tiles;

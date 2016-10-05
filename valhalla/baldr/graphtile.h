@@ -137,7 +137,7 @@ class GraphTile {
    * Get a pointer to edge info.
    * @return  Returns edge info.
    */
-  std::unique_ptr<const EdgeInfo> edgeinfo(const size_t offset) const;
+  EdgeInfo edgeinfo(const size_t offset) const;
 
   /**
    * Convenience method to get the directed edges originating at a node.

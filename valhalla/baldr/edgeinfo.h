@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include <valhalla/midgard/pointll.h>
+#include <valhalla/midgard/shape_decoder.h>
 #include <valhalla/midgard/util.h>
 #include <valhalla/baldr/graphid.h>
 #include <valhalla/baldr/json.h>
@@ -27,6 +28,9 @@ class EdgeInfo {
  public:
   EdgeInfo() = delete;
   EdgeInfo(const EdgeInfo& other) = delete;
+  EdgeInfo& operator=(const EdgeInfo&) = delete;
+  EdgeInfo(EdgeInfo&&) = default;
+  EdgeInfo& operator=(EdgeInfo&&) = default;
 
   /**
    * Constructor
@@ -79,6 +83,10 @@ class EdgeInfo {
    */
   const std::vector<PointLL>& shape() const;
 
+  midgard::Shape7Decoder<PointLL> lazy_shape() const {
+    return midgard::Shape7Decoder<PointLL>(encoded_shape_, item_->encoded_shape_size);
+  }
+
   /**
    * Returns the encoded shape string.
    * @return  Returns the encoded shape string.
@@ -105,13 +113,13 @@ class EdgeInfo {
   uint64_t wayid_;
 
   // Where we keep the statistics about how large the vectors below are
-  PackedItem* item_;
+  const PackedItem* item_;
 
   // List of roadname indexes
-  uint32_t* street_name_offset_list_;
+  const uint32_t* street_name_offset_list_;
 
   // The encoded shape of the edge
-  mutable char* encoded_shape_;
+  const char* encoded_shape_;
 
   // Lng, lat shape of the edge
   mutable std::vector<PointLL> shape_;
@@ -120,7 +128,7 @@ class EdgeInfo {
   const char* names_list_;
 
   // The size of the names list
-  const size_t names_list_length_;
+  size_t names_list_length_;
 
 };
 

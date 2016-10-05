@@ -1,5 +1,7 @@
 #include "baldr/edgeinfo.h"
 
+#include <valhalla/midgard/encoded.h>
+
 using namespace valhalla::baldr;
 
 namespace {
@@ -95,7 +97,7 @@ json::MapPtr EdgeInfo::json() const {
   return json::map({
     {"way_id", static_cast<uint64_t>(wayid_)},
     {"names", names_json(GetNames())},
-    {"shape", encoded_shape()},
+    {"shape", midgard::encode(shape())},
   });
 }
 
