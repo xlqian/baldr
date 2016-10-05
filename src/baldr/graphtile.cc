@@ -360,8 +360,8 @@ GraphId GraphTile::GetOpposingEdgeId(const DirectedEdge* edge) const {
 }
 
 // Get a pointer to edge info.
-std::unique_ptr<const EdgeInfo> GraphTile::edgeinfo(const size_t offset) const {
-  return std::unique_ptr<EdgeInfo>(new EdgeInfo(edgeinfo_ + offset, textlist_, textlist_size_));
+EdgeInfo GraphTile::edgeinfo(const size_t offset) const {
+  return EdgeInfo(edgeinfo_ + offset, textlist_, textlist_size_);
 }
 
 // Get the directed edges outbound from the specified node index.
@@ -377,7 +377,7 @@ const DirectedEdge* GraphTile::GetDirectedEdges(const uint32_t node_index,
 // Convenience method to get the names for an edge given the offset to the
 // edge info
 std::vector<std::string> GraphTile::GetNames(const uint32_t edgeinfo_offset) const {
-  return edgeinfo(edgeinfo_offset)->GetNames();
+  return edgeinfo(edgeinfo_offset).GetNames();
 }
 
 // Get the admininfo at the specified index.
