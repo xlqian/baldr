@@ -522,6 +522,56 @@ class DirectedEdge {
   void set_part_of_complex_restriction(const bool part_of);
 
   /**
+   * Gets the maximum upward slope. Uses 1 degree precision for slopes to 16
+   * degrees and 4 degree precision afterwards (up to a max of 76 degrees).
+   * @return  Returns the maximum upward slope (0 to 76 degrees).
+   */
+  int max_up_slope() const;
+
+  /**
+   * Sets the maximum upward slope. If slope is negative, 0 is set.
+   * @param  slope  Maximum upward slope (degrees).
+   */
+  void set_max_up_slope(const float slope);
+
+  /**
+   * Gets the maximum downward slope. Uses 1 degree precision for slopes to
+   * -16 degrees, and 4 degree precision afterwards (up to a max of -76 degs).
+   * @return  Returns the maximum downward slope (0 to -76 degrees).
+   */
+  int max_down_slope() const;
+
+  /**
+   * Sets the maximum downward slope. If slope is positive, 0 is set.
+   * @param  slope  Maximum downward slope (degrees).
+   */
+  void set_max_down_slope(const float slope);
+
+  /**
+   * Is there a sidewalk to the left of this directed edge?
+   * @return  Returns true if there is a sidewalk to the left of this edge.
+   */
+  bool sidewalk_left() const;
+
+  /**
+   * Set the flag for a sidewalk to the left of this directed edge.
+   * @param  sidewalk True if a sidewalk is on the left of this directed edge.
+   */
+  void set_sidewalk_left(const bool sidewalk);
+
+  /**
+   * Is there a sidewalk to the right of this directed edge?
+   * @return  Returns true if there is a sidewalk to the right of this edge.
+   */
+  bool sidewalk_right() const;
+
+  /**
+   * Set the flag for a sidewalk to the right of this directed edge.
+   * @param  sidewalk True if a sidewalk is on the right of this directed edge.
+   */
+  void set_sidewalk_right(const bool sidewalk);
+
+  /**
    * Gets the turn type given the prior edge's local index
    * (index of the inbound edge).
    * @param  localidx  Local index at the node of the inbound edge.
@@ -789,7 +839,11 @@ class DirectedEdge {
   uint64_t surface_        : 3;  // representation of smoothness
   uint64_t link_           : 1;  // *link tag - Ramp or turn channel
   uint64_t internal_       : 1;  // Edge that is internal to an intersection
-  uint64_t spare1          : 32;
+  uint64_t max_up_slope_   : 5;  // Maximum upward slope
+  uint64_t max_down_slope_ : 5;  // Maximum downward slope
+  uint64_t sidewalk_left_  : 1;  // Sidewalk to the left of the edge
+  uint64_t sidewalk_right_ : 1;  // Sidewalk to the right of the edge
+  uint64_t spare1          : 20;
 
   // Geometric attributes: length, weighted grade, curvature factor.
   // Turn types between edges.

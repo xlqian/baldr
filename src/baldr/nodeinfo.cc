@@ -14,14 +14,15 @@ const uint32_t ContinuityLookup[] = {0, 7, 13, 18, 22, 25, 27};
 
 json::MapPtr access_json(uint16_t access) {
   return json::map({
-    {"bicycle", static_cast<bool>(access && kBicycleAccess)},
-    {"bus", static_cast<bool>(access && kBusAccess)},
-    {"car", static_cast<bool>(access && kAutoAccess)},
-    {"emergency", static_cast<bool>(access && kEmergencyAccess)},
-    {"HOV", static_cast<bool>(access && kHOVAccess)},
-    {"pedestrian", static_cast<bool>(access && kPedestrianAccess)},
-    {"taxi", static_cast<bool>(access && kTaxiAccess)},
-    {"truck", static_cast<bool>(access && kTruckAccess)},
+    {"bicycle", static_cast<bool>(access & kBicycleAccess)},
+    {"bus", static_cast<bool>(access & kBusAccess)},
+    {"car", static_cast<bool>(access & kAutoAccess)},
+    {"emergency", static_cast<bool>(access & kEmergencyAccess)},
+    {"HOV", static_cast<bool>(access & kHOVAccess)},
+    {"pedestrian", static_cast<bool>(access & kPedestrianAccess)},
+    {"taxi", static_cast<bool>(access & kTaxiAccess)},
+    {"truck", static_cast<bool>(access & kTruckAccess)},
+    {"wheelchair", static_cast<bool>(access & kWheelchairAccess)}
   });
 }
 
@@ -143,7 +144,13 @@ uint16_t NodeInfo::access() const {
 
 // Set the access modes (bit mask) allowed to pass through the node.
 void NodeInfo::set_access(const uint32_t access) {
-  access_ = access;
+  if (access > kAllAccess) {
+    LOG_ERROR("NodeInfo: access exceeds maximum allowed: " +
+              std::to_string(access));
+    access_ = (access & kAllAccess);
+  } else {
+    access_ = access;
+  }
 }
 
 // Get the intersection type.

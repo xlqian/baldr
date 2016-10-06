@@ -10,6 +10,9 @@
 namespace valhalla {
 namespace baldr {
 
+// Maximum of 8 (0-7) graph hierarchies are supported.
+constexpr uint32_t kMaxGraphHierarchy = 7;
+
 /**
  * Identifier of a node or an edge within the tiled, hierarchical graph.
  * Includes the tile Id, hierarchy level, and a unique identifier within

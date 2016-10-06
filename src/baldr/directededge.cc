@@ -26,6 +26,7 @@ json::MapPtr access_json(uint32_t access) {
     {"pedestrian", static_cast<bool>(access & kPedestrianAccess)},
     {"taxi", static_cast<bool>(access & kTaxiAccess)},
     {"truck", static_cast<bool>(access & kTruckAccess)},
+    {"wheelchair", static_cast<bool>(access & kWheelchairAccess)}
   });
 }
 
@@ -412,6 +413,13 @@ uint32_t DirectedEdge::forwardaccess() const {
 
 // Set the access modes in the forward direction (bit field).
 void DirectedEdge::set_forwardaccess(const uint32_t modes) {
+  if (modes > kAllAccess) {
+    LOG_ERROR("DirectedEdge: forward access exceeds maximum allowed: " +
+              std::to_string(modes));
+    forwardaccess_ = (modes & kAllAccess);
+  } else {
+    forwardaccess_ = modes;
+  }
   forwardaccess_ = modes;
 }
 
@@ -429,7 +437,13 @@ uint32_t DirectedEdge::reverseaccess() const {
 
 // Set the access modes in the reverse direction (bit field).
 void DirectedEdge::set_reverseaccess(const uint32_t modes) {
-  reverseaccess_ = modes;
+  if (modes > kAllAccess) {
+    LOG_ERROR("DirectedEdge: reverse access exceeds maximum allowed: " +
+              std::to_string(modes));
+    reverseaccess_ = (modes & kAllAccess);
+  } else {
+    reverseaccess_ = modes;
+  }
 }
 
 // -------------------------------- speed -------------------------- //
@@ -512,27 +526,94 @@ void DirectedEdge::set_internal(const bool internal) {
   internal_ = internal;
 }
 
+// Get the Complex restriction (per mode) for this directed edge at the start.
 uint32_t DirectedEdge::start_restriction() const {
   return start_restriction_;
 }
 
+// Set the Complex restriction (per mode) for this directed edge at the start.
 void DirectedEdge::set_start_restriction(const uint32_t modes) {
   start_restriction_ = modes;
 }
 
+// Get the Complex restriction (per mode) for this directed edge at the end.
 uint32_t DirectedEdge::end_restriction() const {
   return end_restriction_;
 }
 
+// Set the Complex restriction (per mode) for this directed edge at the end.
 void DirectedEdge::set_end_restriction(const uint32_t modes) {
   end_restriction_ = modes;
 }
 
+// Is this part of complex restriction flag.
 bool DirectedEdge::part_of_complex_restriction() const {
   return part_of_complex_restriction_;
 }
+
+// Set the part of complex restriction flag.
 void DirectedEdge::set_part_of_complex_restriction(const bool part_of) {
   part_of_complex_restriction_ = part_of;
+}
+
+// Gets the maximum upward slope. Uses 1 degree precision for slopes to
+// 16 degrees, and 4 degree precision afterwards (up to a max of 76 degrees).
+int DirectedEdge::max_up_slope() const {
+  return ((max_up_slope_ & 0x10) == 0) ? max_up_slope_ :
+          16 + ((max_up_slope_ & 0xf) * 4);
+}
+
+// Sets the maximum upward slope.
+void DirectedEdge::set_max_up_slope(const float slope) {
+  if (slope < 0.0f) {
+    max_up_slope_ = 0;
+  } else if (slope < 16.0f) {
+    max_up_slope_ = static_cast<int>(std::ceil(slope));
+  } else if (slope < 76.0f) {
+    max_up_slope_ = 0x10 | static_cast<int>(std::ceil((slope - 16.0f) * 0.25f));
+  } else {
+    max_up_slope_ = 0x1f;
+  }
+}
+
+// Gets the maximum downward slope. Uses 1 degree precision for slopes to
+// -8 degrees, and 4 degree precision afterwards (up to a max of -76 degs).
+int DirectedEdge::max_down_slope() const {
+  return ((max_down_slope_ & 0x10) == 0) ? -max_down_slope_ :
+          -(16 + ((max_down_slope_ & 0xf) * 4));
+}
+
+// Sets the maximum downward slope.
+void DirectedEdge::set_max_down_slope(const float slope) {
+  if (slope > 0.0f) {
+    max_down_slope_ = 0;
+  } else if (slope > -16.0f) {
+    max_down_slope_ = static_cast<int>(std::ceil(-slope));
+  } else if (slope > -76.0f) {
+    max_down_slope_ = 0x10 | static_cast<int>(std::ceil((-slope - 16.0f) * 0.25f));
+  } else {
+    max_down_slope_ = 0x1f;
+  }
+}
+
+// Is there a sidewalk to the left of this directed edge?
+bool DirectedEdge::sidewalk_left() const {
+  return sidewalk_left_;
+}
+
+// Set the flag for a sidewalk to the left of this directed edge.
+void DirectedEdge::set_sidewalk_left(const bool sidewalk) {
+  sidewalk_left_ = sidewalk;
+}
+
+// Is there a sidewalk to the right of this directed edge?
+bool DirectedEdge::sidewalk_right() const {
+  return sidewalk_right_;
+}
+
+// Set the flag for a sidewalk to the right of this directed edge.
+void DirectedEdge::set_sidewalk_right(const bool sidewalk) {
+  sidewalk_right_ = sidewalk;
 }
 
 // Gets the turn type given the prior edge's local index
