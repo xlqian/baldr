@@ -512,13 +512,42 @@ class DirectedEdge {
    */
   void set_internal(const bool internal);
 
+  /**
+   * Complex restriction (per mode) for this directed edge at the start.
+   * @return  Returns the starting mode for this complex restriction for the
+   *          directed edge.
+   */
   uint32_t start_restriction() const;
+
+  /**
+   * Set the modes which have a complex restriction starting on this edge.
+   * @param  modes  Modes with access restrictions.
+   */
   void set_start_restriction(const uint32_t modes);
 
+  /**
+   * Complex restriction (per mode) for this directed edge at the end.
+   * @return  Returns the ending mode for this complex restriction for the
+   *          directed edge.
+   */
   uint32_t end_restriction() const;
+
+  /**
+   * Set the modes which have a complex restriction ending on this edge.
+   * @param  modes  Modes with access restrictions.
+   */
   void set_end_restriction(const uint32_t modes);
 
+  /**
+   * Is this edge part of a complex restriction?
+   */
   bool part_of_complex_restriction() const;
+
+  /**
+   * Sets the part of complex restriction flag indicating the edge is part
+   * of a complex restriction or really a via
+   * @param  part_of  true if the edge is part of a complex restriction.
+   */
   void set_part_of_complex_restriction(const bool part_of);
 
   /**
