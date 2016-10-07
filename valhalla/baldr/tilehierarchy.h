@@ -65,6 +65,13 @@ class TileHierarchy {
    */
   GraphId GetGraphId(const midgard::PointLL& pointll, const uint8_t level) const;
 
+  /**
+   * Gets the hierarchy level given the road class.
+   * @param  road_class  Road classification.
+   * @return Returns the level.
+   */
+  uint8_t get_level(const RoadClass roadclass) const;
+
  private:
   explicit TileHierarchy();
 
