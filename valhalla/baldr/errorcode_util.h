@@ -126,9 +126,7 @@ namespace baldr {
     {162,"Date and time is invalid.  Format is YYYY-MM-DDTHH:MM"},
     {163,"Invalid date_type"},
 
-    {170,"Locations are in unconnected regions. Go check/edit the map at osm.org"},
-    {171,"No suitable edges near location"},
-    {172,"No data found for location"},
+    {170,"No suitable edges near location"},
 
     {199,"Unknown"},
 
