@@ -151,7 +151,7 @@ void GraphTile::Initialize(const GraphId& graphid, char* tile_ptr,
   edge_bins_ = reinterpret_cast<GraphId*>(ptr);
 
   // Start of restriction information and its size
-  complex_restriction_ = graphtile_.get() + header_->complex_restriction_offset();
+  complex_restriction_ = tile_ptr + header_->complex_restriction_offset();
   complex_restriction_size_ = header_->edgeinfo_offset() - header_->complex_restriction_offset();
 
   // Start of edge information and its size
