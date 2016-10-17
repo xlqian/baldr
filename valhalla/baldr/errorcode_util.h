@@ -84,8 +84,12 @@ namespace baldr {
     // loki project 1xx
     {100,"Failed to parse json request"},
     {101,"Try a POST or GET request instead"},
-    {102,"Try any of:"},
-    {103,"Not Implemented"},
+    {102,"The config actions for Loki are incorrectly loaded"},
+    {103,"Missing max_locations configuration"},
+    {104,"Missing max_distance configuration"},
+    {105,"Path action not supported"},
+    {106,"Try any of"},
+    {107,"Not Implemented"},
 
     {110,"Insufficiently specified required parameter 'locations'"},
     {111,"Insufficiently specified required parameter 'time'"},
@@ -93,45 +97,39 @@ namespace baldr {
     {113,"Insufficiently specified required parameter 'contours'"},
     {114,"Insufficiently specified required parameter 'shape' or 'encoded_polyline'"},
 
-    {120,"The config actions for Loki are incorrectly loaded"},
-    {121,"Missing max_locations configuration"},
-    {122,"Missing max_distance configuration"},
-\
-    {130,"Insufficient number of locations provided"},
-    {131,"Insufficient number of sources provided"},
-    {132,"Insufficient number of targets provided"},
-    {133,"Insufficient shape provided"},
-    {134,"No edge/node costing provided"},
-    {135,"No costing method found"},
-    {136,"No shape provided"},
+    {120,"Insufficient number of locations provided"},
+    {121,"Insufficient number of sources provided"},
+    {122,"Insufficient number of targets provided"},
+    {123,"Insufficient shape provided"},
+    {124,"No edge/node costing provided"},
+    {125,"No costing method found"},
+    {126,"No shape provided"},
 
-    {140,"Failed to parse location"},
-    {141,"Failed to parse source"},
-    {142,"Failed to parse target"},
+    {130,"Failed to parse location"},
+    {131,"Failed to parse source"},
+    {132,"Failed to parse target"},
 
-    {150,"Path action not supported"},
-    {151,"Action does not support multimodal costing"},
-    {152,"Arrive by for multimodal not implemented yet"},
-    {153,"Arrive by not implemented for isochrones"},
+    {140,"Action does not support multimodal costing"},
+    {141,"Arrive by for multimodal not implemented yet"},
+    {142,"Arrive by not implemented for isochrones"},
 
-    {160,"Exceeded max locations"},
-    {161,"Exceeded max time"},
-    {162,"Exceeded max contours"},
-    {163,"Too many shape points"},
-    {164,"Path distance exceeds the max distance limit"},
-    {165,"Outside the valid walking distance at the beginning or end of a multimodal route"},
-    {166,"Outside the valid walking distance between stops of a multimodal route"},
+    {150,"Exceeded max locations"},
+    {151,"Exceeded max time"},
+    {152,"Exceeded max contours"},
+    {153,"Too many shape points"},
+    {154,"Path distance exceeds the max distance limit"},
+    {155,"Outside the valid walking distance at the beginning or end of a multimodal route"},
+    {156,"Outside the valid walking distance between stops of a multimodal route"},
 
-    {170,"Date and time required for origin for date_type of depart at"},
-    {171,"Date and time required for destination for date_type of arrive by"},
-    {172,"Date and time is invalid.  Format is YYYY-MM-DDTHH:MM"},
-    {173,"Invalid date_type"},
+    {160,"Date and time required for origin for date_type of depart at"},
+    {161,"Date and time required for destination for date_type of arrive by"},
+    {162,"Date and time is invalid.  Format is YYYY-MM-DDTHH:MM"},
+    {163,"Invalid date_type"},
 
-    {180,"Locations are in unconnected regions. Go check/edit the map at osm.org"},
-    {181,"No suitable edges near location"},
-    {182,"No data found for location"},
+    {170,"Locations are in unconnected regions. Go check/edit the map at osm.org"},
+    {171,"No suitable edges near location"},
 
-    {199,"Unknown:"},
+    {199,"Unknown"},
 
     // odin project 2xx
     {200,"Failed to parse intermediate request format"},
@@ -149,12 +147,15 @@ namespace baldr {
     {231,"Invalid TripDirections_Maneuver_Type in method FormRelativeTwoDirection"},
     {232,"Invalid TripDirections_Maneuver_Type in method FormRelativeThreeDirection"},
 
-    {299,"Unknown:"},
+    {299,"Unknown"},
 
     // skadi project 3xx
     {300,"Failed to parse json request"},
-    {301,"Try any of: '/height'"},
-    {302,"Not Implemented"},
+    {301,"Try a POST or GET request instead"},
+    {302,"The config actions for Skadi are incorrectly loaded"},
+    {303,"Path action not supported"},
+    {304,"Try any of"},
+    {305,"Not Implemented"},
 
     {310,"No shape provided"},
     {311,"Insufficient shape provided"},
@@ -162,7 +163,7 @@ namespace baldr {
     {313,"'resample_distance' must be >= "},
     {314,"Too many shape points"},
 
-    {399,"Unknown:"},
+    {399,"Unknown"},
 
     // thor project 4xx
     {400,"Unknown action"},
@@ -184,13 +185,13 @@ namespace baldr {
     {441,"Location is unreachable"},
     {442,"No path could be found for input"},
 
-    {499,"Unknown:"},
+    {499,"Unknown"},
 
     // tyr project 5xx
     {500,"Failed to parse intermediate request format"},
     {501,"Failed to parse TripDirections"},
 
-    {599,"Unknown:"}
+    {599,"Unknown"}
   };
 
   struct valhalla_exception_t: public std::runtime_error {
@@ -201,7 +202,7 @@ namespace baldr {
       extra(extra){
       auto code_itr = error_codes.find(error_code);
       error_code_message = (code_itr == error_codes.cend() ? "" : code_itr->second);
-      error_code_message += (extra ? *extra : "");
+      error_code_message += (extra ? ":" + *extra : "");
       code_itr = kHttpStatusCodes.find(status_code);
       status_code_body = code_itr == kHttpStatusCodes.cend() ? "" : code_itr->second;
 
