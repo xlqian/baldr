@@ -69,7 +69,7 @@ class GraphTile {
    * @param  tile_dir Base tile directory.
    * @return  Returns the tile Id.
    */
-  static GraphId GetTileId(const std::string& fname, const std::string& tile_dir);
+  static GraphId GetTileId(const std::string& fname);
 
   /**
    * Get the bounding box of this graph tile.

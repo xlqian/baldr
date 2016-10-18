@@ -28,7 +28,7 @@ struct GraphReader::tile_extract_t : public midgard::tar {
       //map files to graph ids
       for(auto& c : contents) {
         try {
-          auto id = GraphTile::GetTileId(c.first, "");
+          auto id = GraphTile::GetTileId(c.first);
           tiles[id] = std::make_pair(const_cast<char*>(c.second.first), c.second.second);
         }
         catch(...){}
@@ -257,7 +257,7 @@ std::unordered_set<GraphId> GraphReader::GetTileSet() const {
         for (boost::filesystem::recursive_directory_iterator i(root_dir), end; i != end; ++i) {
           if (!boost::filesystem::is_directory(i->path())) {
             //add it if it can be parsed as a valid tile file name
-            try { tiles.emplace(GraphTile::GetTileId(i->path().string(), tile_hierarchy_.tile_dir())); }
+            try { tiles.emplace(GraphTile::GetTileId(i->path().string())); }
             catch (...) { }
           }
         }
