@@ -109,18 +109,5 @@ const std::vector<uint64_t> ComplexRestriction::GetVias() const {
   return vias;
 }
 
-// overloaded == operator - used to ensure no dups in tiles.
-bool ComplexRestriction::operator == (const ComplexRestriction& other) const {
-
-  if (from_id() != other.from_id() || to_id() != other.to_id() ||
-      GetVias() != other.GetVias() || type() != other.type() ||
-      modes() != other.modes() || begin_day() != other.begin_day() ||
-      end_day() != other.end_day() || begin_time() != other.begin_time() ||
-      elapsed_time() != other.elapsed_time())
-    return false;
-
-  return true;
-}
-
 }
 }

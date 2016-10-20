@@ -117,14 +117,6 @@ class ComplexRestriction {
    */
   const std::vector<uint64_t> GetVias() const;
 
-  /**
-   * overloaded == operator - used to ensure no dups in tiles.
-   * @param  other  ComplexRestriction to compare to.
-   * @return  Returns true or false if equal or not.
-   *
-   */
-  bool operator == (const ComplexRestriction& other) const;
-
   struct PackedRestriction {
     uint64_t type_          : 10; // Restriction type
     uint64_t modes_         : 12; // Mode(s) this access restriction applies to
