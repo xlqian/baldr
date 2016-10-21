@@ -29,9 +29,8 @@ class ComplexRestriction {
   /**
    * Constructor
    * @param   ptr  Pointer to a bit of memory that has the info for this complex restriction
-   * @param   reverse - should we reverse the vias?
    */
-  ComplexRestriction(char* ptr, const bool reverse = false);
+  ComplexRestriction(char* ptr);
 
   /**
    * Destructor
@@ -49,12 +48,6 @@ class ComplexRestriction {
    * @return  Returns the to id
    */
   uint64_t to_id() const;
-
-  /**
-   * Get the reversed flag
-   * @return  Returns the reversed flag.
-   */
-  bool is_reversed() const;
 
   /**
    * Get the number of vias.
@@ -124,8 +117,8 @@ class ComplexRestriction {
     uint64_t end_day_       :  3; // End day of week this access restriction applies
     uint64_t begin_time_    : 17; // Begin time (seconds from midnight -- 86400 secs per day)
     uint64_t elapsed_time_  : 15; // elapsed time (secs)
-    uint64_t reverse_       :  1; // should we reverse the vias?
     uint64_t via_count_     :  3; // size of via list.
+    uint64_t spare_         :  1;
   };
 
  protected:

@@ -6,7 +6,7 @@
 namespace valhalla {
 namespace baldr {
 
-ComplexRestriction::ComplexRestriction(char* ptr, const bool reverse) {
+ComplexRestriction::ComplexRestriction(char* ptr) {
 
   from_id_ = *(reinterpret_cast<uint64_t*>(ptr));
   ptr += sizeof(uint64_t);
@@ -20,7 +20,6 @@ ComplexRestriction::ComplexRestriction(char* ptr, const bool reverse) {
   via_list_ = reinterpret_cast<uint64_t*>(ptr);
   ptr += (via_count() * sizeof(uint64_t));
 
-  restriction_->reverse_ = reverse;
 }
 
 ComplexRestriction::~ComplexRestriction() {
@@ -36,11 +35,6 @@ uint64_t ComplexRestriction::from_id() const {
 // restriction is to this id
 uint64_t ComplexRestriction::to_id() const {
   return to_id_;
-}
-
-// Get the reversed flag
-bool ComplexRestriction::is_reversed() const {
-  return restriction_->reverse_;
 }
 
 // Get the number of vias.
@@ -104,8 +98,6 @@ const std::vector<uint64_t> ComplexRestriction::GetVias() const {
       throw std::runtime_error("GetVias: count exceeds max via amount per restriction.");
     }
   }
-  if (is_reversed())
-    std::reverse(vias.begin(), vias.end());
   return vias;
 }
 
