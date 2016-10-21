@@ -56,10 +56,12 @@ GraphTile::GraphTile()
       signs_(nullptr),
       admins_(nullptr),
       edge_bins_(nullptr),
-      complex_restriction_(nullptr),
+      complex_restriction_forward_(nullptr),
+      complex_restriction_reverse_(nullptr),
       edgeinfo_(nullptr),
       textlist_(nullptr),
-      complex_restriction_size_(0),
+      complex_restriction_forward_size_(0),
+      complex_restriction_reverse_size_(0),
       edgeinfo_size_(0),
       textlist_size_(0){
 }
@@ -150,9 +152,15 @@ void GraphTile::Initialize(const GraphId& graphid, char* tile_ptr,
   // Set a pointer to the edge bin list
   edge_bins_ = reinterpret_cast<GraphId*>(ptr);
 
-  // Start of restriction information and its size
-  complex_restriction_ = tile_ptr + header_->complex_restriction_offset();
-  complex_restriction_size_ = header_->edgeinfo_offset() - header_->complex_restriction_offset();
+  // Start of forward restriction information and its size
+  complex_restriction_forward_ = tile_ptr + header_->complex_restriction_forward_offset();
+  complex_restriction_forward_size_ =
+      header_->complex_restriction_reverse_offset() - header_->complex_restriction_forward_offset();
+
+  // Start of reverse restriction information and its size
+  complex_restriction_reverse_ = tile_ptr + header_->complex_restriction_reverse_offset();
+  complex_restriction_reverse_size_ =
+      header_->edgeinfo_offset() - header_->complex_restriction_reverse_offset();
 
   // Start of edge information and its size
   edgeinfo_ = tile_ptr + header_->edgeinfo_offset();
@@ -368,19 +376,25 @@ EdgeInfo GraphTile::edgeinfo(const size_t offset) const {
 }
 
 // Get the complex restrictions in the forward or reverse order.
-std::unordered_multimap<uint64_t, ComplexRestriction> GraphTile::GetRestrictions(const bool reverse) const {
+std::unordered_multimap<uint64_t, ComplexRestriction> GraphTile::GetRestrictions(const bool forward) const {
 
   std::unordered_multimap<uint64_t, ComplexRestriction> cr_multimap;
   size_t offset = 0;
-  while (offset < complex_restriction_size_) {
 
-    // send the reverse flag to the constructor so that we know if we should reverse the vias or not
-    ComplexRestriction cr(complex_restriction_ + offset, reverse);
-    offset += sizeof(cr);
-    if (reverse)
-      cr_multimap.emplace(cr.to_id(), cr);
-    else
+  if (forward) {
+    while (offset < complex_restriction_forward_size_) {
+
+      ComplexRestriction cr(complex_restriction_forward_ + offset);
+      offset += sizeof(cr);
       cr_multimap.emplace(cr.from_id(), cr);
+    }
+  } else {
+    while (offset < complex_restriction_reverse_size_) {
+
+      ComplexRestriction cr(complex_restriction_reverse_ + offset);
+      offset += sizeof(cr);
+      cr_multimap.emplace(cr.from_id(), cr);
+    }
   }
   return cr_multimap;
 }

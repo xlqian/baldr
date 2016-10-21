@@ -346,9 +346,17 @@ class GraphTile {
   // indexed directly.
   Admin* admins_;
 
-  char* complex_restriction_;
+  // List of complex_restrictions in the forward direction.
+  char* complex_restriction_forward_;
 
-  std::size_t complex_restriction_size_;
+  // Size of the complex restrictions in the forward direction
+  std::size_t complex_restriction_forward_size_;
+
+  // List of complex_restrictions in the reverse direction.
+  char* complex_restriction_reverse_;
+
+  // Size of the complex restrictions in the reverse direction
+  std::size_t complex_restriction_reverse_size_;
 
   // List of edge info structures. Since edgeinfo is not fixed size we
   // use offsets in directed edges.

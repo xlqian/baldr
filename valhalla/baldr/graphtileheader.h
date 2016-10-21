@@ -221,18 +221,32 @@ class GraphTileHeader {
   void set_admincount(const uint32_t count);
 
   /**
-   * Get the offset to the Complex Restriction list.
+   * Get the offset to the Complex Restriction list in the forward direction.
    * @return  Returns the number of bytes to offset to the the list of
    *          complex restrictions.
    */
-  uint32_t complex_restriction_offset() const;
+  uint32_t complex_restriction_forward_offset() const;
 
   /**
-   * Sets the offset to the list of complex restrictions.
+   * Sets the offset to the list of complex restrictions in the forward direction.
    * @param offset Offset in bytes to the start of the complex restriction
    *               list.
    */
-  void set_complex_restriction_offset(const uint32_t offset);
+  void set_complex_restriction_forward_offset(const uint32_t offset);
+
+  /**
+   * Get the offset to the Complex Restriction list in the reverse direction.
+   * @return  Returns the number of bytes to offset to the the list of
+   *          complex restrictions.
+   */
+  uint32_t complex_restriction_reverse_offset() const;
+
+  /**
+   * Sets the offset to the list of complex restrictions in the reverse direction.
+   * @param offset Offset in bytes to the start of the complex restriction
+   *               list.
+   */
+  void set_complex_restriction_reverse_offset(const uint32_t offset);
 
   /**
    * Gets the offset to the edge info.
@@ -312,7 +326,8 @@ class GraphTileHeader {
   uint32_t admincount_;                 // Number of admin records
 
   // Offsets to beginning of data (for variable size records)
-  uint32_t complex_restriction_offset_; // Offset to complex restriction list
+  uint32_t complex_restriction_forward_offset_; // Offset to complex restriction list
+  uint32_t complex_restriction_reverse_offset_; // Offset to complex restriction list
   uint32_t edgeinfo_offset_;            // Offset to edge info
   uint32_t textlist_offset_;            // Offset to text list
 
