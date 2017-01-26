@@ -97,6 +97,11 @@ bool GraphReader::DoesTileExist(const boost::property_tree::ptree& pt, const Gra
 const GraphTile* GraphReader::GetGraphTile(const GraphId& graphid) {
   //TODO: clear the cache automatically once we become overcommitted by a certain amount
 
+  // Return nullptr if not a valid tile
+  if (!graphid.Is_Valid()) {
+    return nullptr;
+  }
+
   // Check if the level/tileid combination is in the cache
   auto base = graphid.Tile_Base();
   auto cached = cache_.find(base);
@@ -135,7 +140,8 @@ const GraphTile* GraphReader::GetGraphTile(const GraphId& graphid) {
 }
 
 const GraphTile* GraphReader::GetGraphTile(const PointLL& pointll, const uint8_t level){
-  return GetGraphTile(tile_hierarchy_.GetGraphId(pointll, level));
+  GraphId id = tile_hierarchy_.GetGraphId(pointll, level);
+  return (id.Is_Valid()) ? GetGraphTile(tile_hierarchy_.GetGraphId(pointll, level)) : nullptr;
 }
 
 const GraphTile* GraphReader::GetGraphTile(const PointLL& pointll){
