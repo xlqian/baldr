@@ -4,6 +4,7 @@
 #include <boost/property_tree/json_parser.hpp>
 
 #include "baldr/location.h"
+#include "baldr/rapidjson_utils.h"
 #include <valhalla/midgard/pointll.h>
 #include <valhalla/midgard/logging.h>
 #include <valhalla/midgard/util.h>
@@ -147,50 +148,34 @@ Location Location::FromRapidJson(const rapidjson::Value& d){
 
   Location location{{lon,lat}, stop_type};
 
-  auto* ptr = rapidjson::Pointer("/date_time").Get(d);
-  if (ptr) {
-    location.date_time_ = ptr->GetString();
-  }
+  location.date_time_ = GetOptionalFromRapidJson<std::string>(d, "/date_time");
+  location.heading_ = GetOptionalFromRapidJson<int>(d, "/heading");
+  location.way_id_ = GetOptionalFromRapidJson<uint64_t>(d, "/way_id");
 
-  ptr = rapidjson::Pointer("/heading").Get(d);
-  if (ptr) {
-    location.heading_ = ptr->GetInt();
-  }
+  auto name = GetOptionalFromRapidJson<std::string>(d, "/name");
+  if (name)
+    location.name_ = *name;
 
-  ptr = rapidjson::Pointer("/way_id").Get(d);
-  if (ptr) {
-    location.way_id_ = ptr->GetInt64();
-  }
+  auto street = GetOptionalFromRapidJson<std::string>(d, "/street");
+  if (street)
+    location.street_ = *street;
 
-  ptr = rapidjson::Pointer("/name").Get(d);
-  if (ptr) {
-    location.name_ = ptr->GetString();
-  }
+  auto city = GetOptionalFromRapidJson<std::string>(d, "/city");
+  if (city)
+    location.city_ = *city;
 
-  ptr = rapidjson::Pointer("/street").Get(d);
-  if (ptr) {
-    location.street_ = ptr->GetString();
-  }
+  auto state = GetOptionalFromRapidJson<std::string>(d, "/state");
+  if (state)
+    location.state_ = *state;
 
-  ptr = rapidjson::Pointer("/city").Get(d);
-  if (ptr) {
-    location.city_ = ptr->GetString();
-  }
+  auto zip = GetOptionalFromRapidJson<std::string>(d, "/postal_code");
+  if (zip)
+    location.zip_ = *zip;
 
-  ptr = rapidjson::Pointer("/state").Get(d);
-  if (ptr) {
-    location.state_ = ptr->GetString();
-  }
+  auto country = GetOptionalFromRapidJson<std::string>(d, "/country");
+  if (country)
+    location.country_ = *country;
 
-  ptr = rapidjson::Pointer("/postal_code").Get(d);
-  if (ptr) {
-    location.zip_ = ptr->GetString();
-  }
-
-  ptr = rapidjson::Pointer("/country").Get(d);
-  if (ptr) {
-    location.country_ = ptr->GetString();
-  }
   return location;
 }
 
