@@ -11,25 +11,15 @@
 #include <rapidjson/document.h>
 #include <rapidjson/pointer.h>
 
-namespace valhalla {
+namespace valhalla{
 
-
-template<typename T>
-inline boost::optional<T> GetOptionalFromRapidJson(const rapidjson::Value& v, const char* source){
-  auto* ptr= rapidjson::Pointer{source}.Get(v);
-  if(! ptr || ! ptr->Is<T>()) {
+template<typename T, typename V>
+inline boost::optional<T> GetOptionalFromRapidJson(V&& v, const char* source){
+  auto* ptr= rapidjson::Pointer{source}.Get(std::forward<V>(v));
+  if(! ptr || ! ptr->template Is<T>()) {
     return {};
   }
-  return ptr->Get<T>();
-}
-
-template<typename T>
-inline boost::optional<T> GetOptionalFromRapidJson(rapidjson::Value& v, const char* source){
-  auto* ptr= rapidjson::Pointer{source}.Get(v);
-  if(! ptr || ! ptr->Is<T>()) {
-    return {};
-  }
-  return ptr->Get<T>();
+  return ptr->template Get<T>();
 }
 
 }
